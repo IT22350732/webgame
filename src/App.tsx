@@ -1,0 +1,205 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { Game } from './game/Game';
+import { useGameStore } from './store/gameStore';
+import { useSettingsStore } from './store/settingsStore';
+import { MainMenu } from './components/MainMenu/MainMenu';
+import { GameHUD } from './components/GameUI/GameHUD';
+import { MobileControls } from './components/GameUI/MobileControls';
+import { CarSelector } from './components/CarSelector/CarSelector';
+import { SettingsModal } from './components/Settings/SettingsModal';
+import { PauseMenu } from './components/PauseMenu/PauseMenu';
+import { AboutModal } from './components/About/AboutModal';
+import { DebugOverlay } from './components/DebugOverlay/DebugOverlay';
+import { LoadingScreen } from './components/LoadingScreen/LoadingScreen';
+import { CarInputs } from './game/car/CarPhysics';
+
+export const App: React.FC = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const gameRef = useRef<Game | null>(null);
+
+  const gameState = useGameStore((s) => s.gameState);
+  const setGameState = useGameStore((s) => s.setGameState);
+  const toggleDebug = useGameStore((s) => s.toggleDebug);
+  const cycleCameraMode = useGameStore((s) => s.cycleCameraMode);
+
+  const [isWebGlSupported, setIsWebGlSupported] = useState(true);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Initialize Game Engine
+  useEffect(() => {
+    // 1. WebGL Support test
+    try {
+      const testCanvas = document.createElement('canvas');
+      const gl = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl');
+      if (!gl) {
+        setIsWebGlSupported(false);
+        return;
+      }
+    } catch {
+      setIsWebGlSupported(false);
+      return;
+    }
+
+    if (containerRef.current && !gameRef.current) {
+      gameRef.current = new Game(containerRef.current);
+    }
+
+    // F3 Listener for Debug Overlay
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'F3') {
+        e.preventDefault();
+        toggleDebug();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (gameRef.current) {
+        gameRef.current.dispose();
+        gameRef.current = null;
+      }
+    };
+  }, [toggleDebug]);
+
+  // Apply updated settings directly to runtime subsystems
+  const applySettingsToEngine = () => {
+    if (!gameRef.current) return;
+    const settings = useSettingsStore.getState().settings;
+    gameRef.current.trafficManager.setDensity(settings.trafficDensity);
+    gameRef.current.trafficManager.setTrafficSide(settings.trafficSide);
+    gameRef.current.skySystem.setTimeSetting(settings.timeOfDay);
+    gameRef.current.weatherSystem.setWeatherSetting(settings.weather);
+    if (gameRef.current.carController) {
+      gameRef.current.carController.cameraFollow.setBaseFov(settings.fov);
+    }
+  };
+
+  const handleStartDrive = () => {
+    setIsLoading(true);
+    setGameState('LOADING');
+
+    setTimeout(() => {
+      if (gameRef.current) {
+        gameRef.current.restartDrive();
+      }
+      setIsLoading(false);
+      setGameState('PLAYING');
+    }, 600);
+  };
+
+  const handleCarChanged = (carId: string) => {
+    if (gameRef.current) {
+      gameRef.current.initPlayerCar(carId);
+    }
+  };
+
+  const handleTouchInputs = (inputs: CarInputs) => {
+    if (gameRef.current) {
+      gameRef.current.setTouchInputs(inputs);
+    }
+  };
+
+  const handleResetCar = () => {
+    if (gameRef.current) {
+      gameRef.current.resetCarToRoad();
+    }
+  };
+
+  if (!isWebGlSupported) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        color: '#f87171',
+        fontSize: '20px',
+        textAlign: 'center',
+        padding: '20px',
+      }}>
+        Your browser does not support WebGL required for this game.
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+      {/* 3D Scene Container */}
+      <div ref={containerRef} className="game-canvas-container" />
+
+      {/* Loading Overlay */}
+      {isLoading && <LoadingScreen />}
+
+      {/* F3 Telemetry Overlay */}
+      <DebugOverlay />
+
+      {/* Screen States */}
+      {gameState === 'MAIN_MENU' && (
+        <MainMenu
+          onStartDrive={handleStartDrive}
+          onOpenGarage={() => setGameState('GARAGE')}
+          onOpenSettings={() => setShowSettingsModal(true)}
+          onOpenAbout={() => setShowAboutModal(true)}
+        />
+      )}
+
+      {gameState === 'GARAGE' && (
+        <CarSelector
+          onBack={() => setGameState('MAIN_MENU')}
+          onCarChanged={handleCarChanged}
+        />
+      )}
+
+      {(gameState === 'PLAYING' || gameState === 'PAUSED') && (
+        <>
+          <GameHUD
+            onPause={() => setGameState('PAUSED')}
+            onResetCar={handleResetCar}
+            onCycleCamera={() => {
+              if (gameRef.current?.carController) {
+                cycleCameraMode();
+                gameRef.current.carController.cameraFollow.setMode(
+                  useGameStore.getState().cameraMode
+                );
+              }
+            }}
+          />
+          {gameState === 'PLAYING' && (
+            <MobileControls onInputsChange={handleTouchInputs} />
+          )}
+        </>
+      )}
+
+      {gameState === 'PAUSED' && (
+        <PauseMenu
+          onResume={() => setGameState('PLAYING')}
+          onRestartDrive={() => {
+            if (gameRef.current) {
+              gameRef.current.restartDrive();
+            }
+            setGameState('PLAYING');
+          }}
+          onOpenSettings={() => setShowSettingsModal(true)}
+          onMainMenu={() => setGameState('MAIN_MENU')}
+        />
+      )}
+
+      {/* Global Modals */}
+      {showSettingsModal && (
+        <SettingsModal
+          onClose={() => setShowSettingsModal(false)}
+          onApplySettings={applySettingsToEngine}
+        />
+      )}
+
+      {showAboutModal && (
+        <AboutModal onClose={() => setShowAboutModal(false)} />
+      )}
+    </div>
+  );
+};
+
+export default App;
