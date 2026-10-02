@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, Compass, Sliders, Info, Shuffle, Award, Route, Smartphone, ShieldCheck, Maximize, Minimize } from 'lucide-react';
+import { Play, Compass, Sliders, Info, Shuffle, Award, Route, Smartphone, ShieldCheck, Maximize, Minimize, Share2, Link2, Check } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { audioManager } from '../../game/audio/AudioManager';
@@ -28,6 +28,33 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
   const [seedInput, setSeedInput] = useState(seed.toString());
   const { isFullscreen, toggleFullscreen } = useFullscreen();
+  const [copiedUrl, setCopiedUrl] = useState(false);
+
+  const handleCopyUrl = async () => {
+    triggerHaptic(15);
+    audioManager.playClick();
+    const gameUrl = typeof window !== 'undefined' ? (window.location.origin || window.location.href) : '';
+    if (navigator.clipboard && gameUrl) {
+      try {
+        await navigator.clipboard.writeText(gameUrl);
+        setCopiedUrl(true);
+        setTimeout(() => setCopiedUrl(false), 2500);
+      } catch {
+        // Fallback
+      }
+    }
+    if (navigator.share && gameUrl) {
+      try {
+        await navigator.share({
+          title: 'ROADSCAPE — by Imeth Mendis',
+          text: 'Play ROADSCAPE — Endless 3D Scenic Driving Game with Phone Tilt Controls!',
+          url: gameUrl,
+        });
+      } catch {
+        // Dismiss
+      }
+    }
+  };
 
   const handleToggleFullscreen = async () => {
     triggerHaptic(15);
@@ -86,7 +113,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         overflowY: 'auto',
       }}
     >
-      {/* Top Header / Branding & Fullscreen Toggle */}
+      {/* Top Header / Branding & Quick Controls */}
       <div
         style={{
           pointerEvents: 'auto',
@@ -95,81 +122,145 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           alignItems: 'flex-start',
           gap: '16px',
           width: '100%',
+          flexWrap: 'wrap',
         }}
       >
-        <div style={{ display: 'inline-block' }}>
-          <h1
+        {/* Brand Lockup: Logo Badge + Title */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 2.5vw, 20px)' }}>
+          <img
+            src="/logo.png"
+            alt="ROADSCAPE Game Logo"
             style={{
-              fontSize: 'clamp(32px, 8vw, 56px)',
-              fontWeight: 800,
-              letterSpacing: 'clamp(3px, 1.2vw, 8px)',
-              textTransform: 'uppercase',
-              background: 'linear-gradient(135deg, #ffffff 40%, #38bdf8 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              margin: 0,
-              lineHeight: 1.1,
-              textShadow: '0 10px 30px rgba(56, 189, 248, 0.3)',
+              width: 'clamp(58px, 12vw, 84px)',
+              height: 'clamp(58px, 12vw, 84px)',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '2.5px solid rgba(56, 189, 248, 0.75)',
+              boxShadow: '0 0 25px rgba(56, 189, 248, 0.5), 0 8px 24px rgba(0, 0, 0, 0.6)',
+              flexShrink: 0,
             }}
-          >
-            ROADSCAPE
-          </h1>
-          <p
-            style={{
-              fontSize: 'clamp(11px, 2.5vw, 16px)',
-              fontWeight: 500,
-              letterSpacing: 'clamp(2px, 0.8vw, 4px)',
-              color: '#94a3b8',
-              marginTop: '4px',
-              textTransform: 'uppercase',
-            }}
-          >
-            Endless Scenic Driving Experience
-          </p>
+          />
 
-          {/* Prominent Owner Notice */}
-          <div
-            className="glass-panel"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '6px 14px',
-              marginTop: '10px',
-              borderRadius: '20px',
-              background: 'rgba(56, 189, 248, 0.16)',
-              borderColor: 'rgba(56, 189, 248, 0.45)',
-              boxShadow: '0 0 16px rgba(56, 189, 248, 0.25)',
-            }}
-          >
-            <ShieldCheck size={15} color="#38bdf8" />
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc', letterSpacing: '0.4px' }}>
-              Owner: <strong style={{ color: '#38bdf8' }}>Imeth Mendis</strong> (All rights reserved)
-            </span>
+          <div>
+            <h1
+              style={{
+                fontSize: 'clamp(32px, 7vw, 54px)',
+                fontWeight: 900,
+                letterSpacing: 'clamp(3px, 1.2vw, 7px)',
+                textTransform: 'uppercase',
+                margin: 0,
+                lineHeight: 1.05,
+                filter: 'drop-shadow(0 6px 16px rgba(0,0,0,0.6))',
+              }}
+            >
+              <span style={{ color: '#ffffff' }}>ROAD</span>
+              <span
+                style={{
+                  background: 'linear-gradient(135deg, #38bdf8 20%, #0284c7 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                SCAPE
+              </span>
+            </h1>
+            <p
+              style={{
+                fontSize: 'clamp(10px, 2vw, 13px)',
+                fontWeight: 600,
+                letterSpacing: 'clamp(2px, 0.6vw, 4px)',
+                color: '#94a3b8',
+                marginTop: '4px',
+                textTransform: 'uppercase',
+              }}
+            >
+              Endless Scenic Driving Experience
+            </p>
+
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginTop: '8px' }}>
+              {/* Prominent Owner Notice */}
+              <div
+                className="glass-panel"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '5px 12px',
+                  borderRadius: '20px',
+                  background: 'rgba(56, 189, 248, 0.16)',
+                  borderColor: 'rgba(56, 189, 248, 0.45)',
+                  boxShadow: '0 0 16px rgba(56, 189, 248, 0.25)',
+                }}
+              >
+                <ShieldCheck size={14} color="#38bdf8" />
+                <span style={{ fontSize: '11px', fontWeight: 600, color: '#f8fafc', letterSpacing: '0.4px' }}>
+                  Owner: <strong style={{ color: '#38bdf8' }}>Imeth Mendis</strong> (All rights reserved)
+                </span>
+              </div>
+
+              {/* Game URL Pill with Copy & Share */}
+              <button
+                onClick={handleCopyUrl}
+                className="glass-btn"
+                title="Copy / Share Game URL"
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: '20px',
+                  fontSize: '11px',
+                  gap: '6px',
+                  minHeight: '26px',
+                  background: copiedUrl ? 'rgba(34, 197, 94, 0.25)' : 'rgba(15, 23, 42, 0.6)',
+                  borderColor: copiedUrl ? '#22c55e' : 'rgba(56, 189, 248, 0.3)',
+                }}
+              >
+                {copiedUrl ? <Check size={13} color="#22c55e" /> : <Link2 size={13} color="#38bdf8" />}
+                <span style={{ color: copiedUrl ? '#86efac' : '#cbd5e1' }}>
+                  {copiedUrl ? 'Copied Game URL!' : 'Share Game URL'}
+                </span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Quick Fullscreen Button */}
-        <button
-          onClick={handleToggleFullscreen}
-          className="glass-btn"
-          title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
-          style={{
-            padding: '10px 16px',
-            borderRadius: '14px',
-            gap: '8px',
-            fontSize: '12px',
-            letterSpacing: '0.8px',
-            fontWeight: 700,
-            background: isFullscreen ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.08)',
-            borderColor: isFullscreen ? '#38bdf8' : 'rgba(255, 255, 255, 0.2)',
-            boxShadow: isFullscreen ? '0 0 16px rgba(56, 189, 248, 0.3)' : undefined,
-            flexShrink: 0,
-          }}
-        >
-          {isFullscreen ? <Minimize size={16} color="#38bdf8" /> : <Maximize size={16} color="#38bdf8" />}
-          <span>{isFullscreen ? 'FULLSCREEN ON' : 'FULLSCREEN'}</span>
-        </button>
+        {/* Top Right Header Controls (Share & Fullscreen) */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            onClick={handleCopyUrl}
+            className="glass-btn"
+            title="Share Game URL"
+            style={{
+              padding: '10px 14px',
+              borderRadius: '14px',
+              gap: '6px',
+              fontSize: '12px',
+              fontWeight: 700,
+            }}
+          >
+            {copiedUrl ? <Check size={15} color="#22c55e" /> : <Share2 size={15} color="#38bdf8" />}
+            <span>{copiedUrl ? 'COPIED' : 'SHARE'}</span>
+          </button>
+
+          <button
+            onClick={handleToggleFullscreen}
+            className="glass-btn"
+            title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+            style={{
+              padding: '10px 16px',
+              borderRadius: '14px',
+              gap: '8px',
+              fontSize: '12px',
+              letterSpacing: '0.8px',
+              fontWeight: 700,
+              background: isFullscreen ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.08)',
+              borderColor: isFullscreen ? '#38bdf8' : 'rgba(255, 255, 255, 0.2)',
+              boxShadow: isFullscreen ? '0 0 16px rgba(56, 189, 248, 0.3)' : undefined,
+              flexShrink: 0,
+            }}
+          >
+            {isFullscreen ? <Minimize size={16} color="#38bdf8" /> : <Maximize size={16} color="#38bdf8" />}
+            <span>{isFullscreen ? 'FULLSCREEN ON' : 'FULLSCREEN'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Center Left: Action Menu */}
@@ -341,14 +432,36 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           >
             WASD or Tilt Phone to Steer • Tap to Drive
           </div>
-          <div
-            style={{
-              fontSize: '10px',
-              color: '#94a3b8',
-              letterSpacing: '0.5px',
-            }}
-          >
-            © 2026 <strong style={{ color: '#f8fafc' }}>Imeth Mendis</strong> • All Rights Reserved
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <button
+              onClick={handleCopyUrl}
+              title="Copy Game URL"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '10px',
+                color: '#38bdf8',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontWeight: 600,
+                padding: 0,
+              }}
+            >
+              <Link2 size={11} />
+              <span>{copiedUrl ? 'URL Copied!' : 'Game URL'}</span>
+            </button>
+            <span style={{ color: '#475569' }}>•</span>
+            <div
+              style={{
+                fontSize: '10px',
+                color: '#94a3b8',
+                letterSpacing: '0.5px',
+              }}
+            >
+              © 2026 <strong style={{ color: '#f8fafc' }}>Imeth Mendis</strong> • All Rights Reserved
+            </div>
           </div>
         </div>
       </div>

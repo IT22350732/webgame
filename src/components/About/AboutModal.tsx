@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Sparkles, Keyboard, Smartphone, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Sparkles, Keyboard, Smartphone, ShieldCheck, Globe, Copy, Check, Link2, ExternalLink } from 'lucide-react';
 import { audioManager } from '../../game/audio/AudioManager';
 import { triggerHaptic } from '../../utils/haptics';
 
@@ -8,6 +8,23 @@ interface AboutModalProps {
 }
 
 export const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
+  const [copied, setCopied] = useState(false);
+  const gameUrl = typeof window !== 'undefined' ? (window.location.origin || window.location.href) : 'https://github.com/IT22350732/webgame';
+
+  const handleCopyUrl = async () => {
+    triggerHaptic(15);
+    audioManager.playClick();
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(gameUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2200);
+      } catch {
+        // Fallback
+      }
+    }
+  };
+
   return (
     <div
       style={{
@@ -36,15 +53,31 @@ export const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {/* Header */}
+        {/* Header with Game Logo & Name */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h2 style={{ fontSize: 'clamp(20px, 4vw, 24px)', fontWeight: 800, color: '#ffffff', letterSpacing: '1px' }}>
-              ABOUT ROADSCAPE
-            </h2>
-            <p style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Endless Scenic Driving Experience
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <img
+              src="/logo.png"
+              alt="ROADSCAPE Logo"
+              style={{
+                width: '54px',
+                height: '54px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '2px solid #38bdf8',
+                boxShadow: '0 0 16px rgba(56, 189, 248, 0.45)',
+                flexShrink: 0,
+              }}
+            />
+            <div>
+              <h2 style={{ fontSize: 'clamp(20px, 4vw, 24px)', fontWeight: 900, margin: 0, letterSpacing: '1px' }}>
+                <span style={{ color: '#ffffff' }}>ROAD</span>
+                <span style={{ color: '#38bdf8' }}>SCAPE</span>
+              </h2>
+              <p style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '2px' }}>
+                Endless Scenic Driving Experience
+              </p>
+            </div>
           </div>
           <button
             onClick={() => { triggerHaptic(12); audioManager.playClick(); onClose(); }}
@@ -76,6 +109,60 @@ export const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
             <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
               © 2026 Imeth Mendis. All rights reserved.
             </div>
+          </div>
+        </div>
+
+        {/* Game URL & Official Links Card */}
+        <div
+          className="glass-panel"
+          style={{
+            background: 'rgba(15, 23, 42, 0.7)',
+            padding: '14px 18px',
+            borderRadius: '14px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            borderColor: 'rgba(56, 189, 248, 0.3)',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Globe size={16} color="#38bdf8" />
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#f8fafc', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                Game URL & Online Link
+              </span>
+            </div>
+
+            <button
+              onClick={handleCopyUrl}
+              className="glass-btn"
+              style={{ padding: '6px 12px', fontSize: '11px', gap: '5px', minHeight: '28px' }}
+            >
+              {copied ? <Check size={12} color="#22c55e" /> : <Copy size={12} />}
+              <span>{copied ? 'Copied Link!' : 'Copy Game URL'}</span>
+            </button>
+          </div>
+
+          <div
+            style={{
+              padding: '8px 12px',
+              borderRadius: '8px',
+              background: 'rgba(0, 0, 0, 0.45)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '12px',
+              color: '#38bdf8',
+              wordBreak: 'break-all',
+              userSelect: 'text',
+              WebkitUserSelect: 'text',
+            }}
+          >
+            {gameUrl}
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px', fontSize: '11px', color: '#94a3b8' }}>
+            <span>GitHub: <a href="https://github.com/IT22350732/webgame" target="_blank" rel="noopener noreferrer" style={{ color: '#38bdf8', textDecoration: 'none' }}>github.com/IT22350732/webgame</a></span>
+            <span style={{ color: '#64748b' }}>Free & Open Access</span>
           </div>
         </div>
 

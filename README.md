@@ -1,7 +1,18 @@
-# ROADSCAPE — Endless Scenic Driving Game
+<div align="center">
+  <img src="public/logo.png" alt="ROADSCAPE Logo" width="160" style="border-radius: 50%;" />
+  <h1>ROADSCAPE</h1>
+  <p><strong>Endless Scenic Driving Experience</strong></p>
 
-> **Owner & Creator:** Imeth Mendis  
-> **Copyright:** © 2026 Imeth Mendis. All Rights Reserved.
+  <p>
+    <strong>Owner & Creator:</strong> Imeth Mendis &bull;
+    <strong>Copyright:</strong> &copy; 2026 Imeth Mendis. All Rights Reserved.
+  </p>
+
+  <p>
+    <a href="https://github.com/IT22350732/webgame"><strong>GitHub Repository</strong></a> &bull;
+    <strong>Game URL:</strong> <a href="https://github.com/IT22350732/webgame">ROADSCAPE Online</a>
+  </p>
+</div>
 
 ---
 

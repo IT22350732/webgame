@@ -1,5 +1,5 @@
-import React from 'react';
-import { Play, RotateCcw, Sliders, Home, Maximize, Minimize } from 'lucide-react';
+import React, { useState } from 'react';
+import { Play, RotateCcw, Sliders, Home, Maximize, Minimize, Share2, Link2, Check } from 'lucide-react';
 import { audioManager } from '../../game/audio/AudioManager';
 import { triggerHaptic } from '../../utils/haptics';
 import { useFullscreen } from '../../utils/fullscreen';
@@ -18,6 +18,33 @@ export const PauseMenu: React.FC<PauseMenuProps> = ({
   onMainMenu,
 }) => {
   const { isFullscreen, toggleFullscreen } = useFullscreen();
+  const [copiedUrl, setCopiedUrl] = useState(false);
+
+  const handleCopyUrl = async () => {
+    triggerHaptic(15);
+    audioManager.playClick();
+    const gameUrl = typeof window !== 'undefined' ? (window.location.origin || window.location.href) : '';
+    if (navigator.clipboard && gameUrl) {
+      try {
+        await navigator.clipboard.writeText(gameUrl);
+        setCopiedUrl(true);
+        setTimeout(() => setCopiedUrl(false), 2200);
+      } catch {
+        // Fallback
+      }
+    }
+    if (navigator.share && gameUrl) {
+      try {
+        await navigator.share({
+          title: 'ROADSCAPE — by Imeth Mendis',
+          text: 'Play ROADSCAPE — Endless 3D Scenic Driving Game with Phone Tilt Controls!',
+          url: gameUrl,
+        });
+      } catch {
+        // Dismiss
+      }
+    }
+  };
 
   const handleToggleFullscreen = async () => {
     triggerHaptic(15);
@@ -42,26 +69,45 @@ export const PauseMenu: React.FC<PauseMenuProps> = ({
       <div
         className="glass-panel animate-fade-in"
         style={{
-          padding: 'clamp(24px, 5vw, 40px)',
+          padding: 'clamp(20px, 4vw, 36px)',
           width: '100%',
           maxWidth: '380px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '14px',
+          gap: '12px',
           textAlign: 'center',
         }}
       >
-        <h2
-          style={{
-            fontSize: 'clamp(24px, 5vw, 32px)',
-            fontWeight: 800,
-            letterSpacing: '4px',
-            color: '#ffffff',
-            marginBottom: '4px',
-          }}
-        >
-          PAUSED
-        </h2>
+        {/* Game Logo & Brand Header */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+          <img
+            src="/logo.png"
+            alt="ROADSCAPE Logo"
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '2px solid rgba(56, 189, 248, 0.7)',
+              boxShadow: '0 0 20px rgba(56, 189, 248, 0.4)',
+            }}
+          />
+          <h2
+            style={{
+              fontSize: 'clamp(22px, 5vw, 26px)',
+              fontWeight: 900,
+              letterSpacing: '3px',
+              margin: 0,
+              lineHeight: 1.1,
+            }}
+          >
+            <span style={{ color: '#ffffff' }}>ROAD</span>
+            <span style={{ color: '#38bdf8' }}>SCAPE</span>
+          </h2>
+          <span style={{ fontSize: '11px', color: '#94a3b8', letterSpacing: '2px', textTransform: 'uppercase' }}>
+            PAUSED
+          </span>
+        </div>
 
         <button
           onClick={() => { triggerHaptic(15); audioManager.playClick(); onResume(); }}
@@ -97,6 +143,15 @@ export const PauseMenu: React.FC<PauseMenuProps> = ({
         >
           <Sliders size={16} color="#38bdf8" />
           <span>SETTINGS</span>
+        </button>
+
+        <button
+          onClick={handleCopyUrl}
+          className="glass-btn"
+          style={{ padding: '13px', fontSize: '14px' }}
+        >
+          {copiedUrl ? <Check size={16} color="#22c55e" /> : <Share2 size={16} color="#38bdf8" />}
+          <span>{copiedUrl ? 'COPIED GAME URL!' : 'SHARE GAME URL'}</span>
         </button>
 
         <button
