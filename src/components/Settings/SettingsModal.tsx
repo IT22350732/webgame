@@ -16,6 +16,7 @@ import { tiltManager } from '../../utils/tiltManager';
 import { triggerHaptic } from '../../utils/haptics';
 import { useFullscreen } from '../../utils/fullscreen';
 import {
+  BiomeType,
   CameraMode,
   ControlScheme,
   GraphicsQuality,
@@ -23,6 +24,7 @@ import {
   TrafficSide,
   WeatherType,
 } from '../../types/game';
+import { BIOMES } from '../../game/world/biomeConfigs';
 
 interface SettingsModalProps {
   onClose: () => void;
@@ -368,21 +370,77 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onApplySe
 
         {/* Section 2: Environment */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#38bdf8', letterSpacing: '1.5px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Cloud size={16} /> Environment & Atmosphere
-          </h4>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h4 style={{ fontSize: '12px', fontWeight: 700, color: '#38bdf8', letterSpacing: '1.5px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              <Cloud size={16} /> Environment & Atmosphere
+            </h4>
+            <span style={{ fontSize: '10px', color: '#94a3b8' }}>Fixed during drive</span>
+          </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+          {/* Environment / Biome Selector */}
+          <div>
+            <label style={{ fontSize: '12px', color: '#94a3b8', display: 'block', marginBottom: '6px' }}>
+              Driving Environment
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))', gap: '6px' }}>
+              {(Object.keys(BIOMES) as BiomeType[]).map((biomeKey) => {
+                const b = BIOMES[biomeKey];
+                const isSelected = (settings.environment || 'COUNTRYSIDE') === biomeKey;
+                return (
+                  <button
+                    key={biomeKey}
+                    onClick={() => {
+                      triggerHaptic(12);
+                      audioManager.playClick();
+                      updateSetting('environment', biomeKey);
+                      onApplySettings?.();
+                    }}
+                    className="glass-btn"
+                    style={{
+                      padding: '8px 10px',
+                      fontSize: '11px',
+                      justifyContent: 'flex-start',
+                      gap: '8px',
+                      background: isSelected ? 'rgba(56, 189, 248, 0.28)' : undefined,
+                      borderColor: isSelected ? '#38bdf8' : undefined,
+                      boxShadow: isSelected ? '0 0 12px rgba(56, 189, 248, 0.3)' : undefined,
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: '9px',
+                        height: '9px',
+                        borderRadius: '50%',
+                        backgroundColor: b.terrainColor,
+                        boxShadow: `0 0 6px ${b.terrainColor}`,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: isSelected ? 700 : 500 }}>
+                      {b.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
             {/* Weather */}
             <div>
               <label style={{ fontSize: '12px', color: '#94a3b8', display: 'block', marginBottom: '6px' }}>
                 Weather Condition
               </label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                {(['DYNAMIC', 'CLEAR', 'RAIN', 'FOG'] as ('DYNAMIC' | WeatherType)[]).map((w) => (
+                {(['CLEAR', 'CLOUDY', 'RAIN', 'FOG'] as WeatherType[]).map((w) => (
                   <button
                     key={w}
-                    onClick={() => { audioManager.playClick(); updateSetting('weather', w); onApplySettings?.(); }}
+                    onClick={() => {
+                      triggerHaptic(12);
+                      audioManager.playClick();
+                      updateSetting('weather', w);
+                      onApplySettings?.();
+                    }}
                     className="glass-btn"
                     style={{
                       flex: '1 0 45%',
@@ -401,13 +459,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onApplySe
             {/* Time of Day */}
             <div>
               <label style={{ fontSize: '12px', color: '#94a3b8', display: 'block', marginBottom: '6px' }}>
-                Time of Day
+                Time of Day / Lighting
               </label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                {(['DYNAMIC', 'DAY', 'SUNSET', 'NIGHT'] as ('DYNAMIC' | TimeOfDay)[]).map((t) => (
+                {(['DAY', 'SUNSET', 'NIGHT', 'DAWN'] as TimeOfDay[]).map((t) => (
                   <button
                     key={t}
-                    onClick={() => { audioManager.playClick(); updateSetting('timeOfDay', t); onApplySettings?.(); }}
+                    onClick={() => {
+                      triggerHaptic(12);
+                      audioManager.playClick();
+                      updateSetting('timeOfDay', t);
+                      onApplySettings?.();
+                    }}
                     className="glass-btn"
                     style={{
                       flex: '1 0 45%',

@@ -9,7 +9,7 @@ import { CAR_CONFIGS } from './car/carConfigs';
 import { audioManager } from './audio/AudioManager';
 import { useGameStore } from '../store/gameStore';
 import { useSettingsStore } from '../store/settingsStore';
-import { CarConfig } from '../types/game';
+import { CarConfig, BiomeType } from '../types/game';
 
 export class Game {
   public container: HTMLElement;
@@ -68,7 +68,7 @@ export class Game {
     const initialSeed = useGameStore.getState().seed;
     const initialSettings = useSettingsStore.getState().settings;
 
-    this.roadManager = new RoadManager(this.scene, initialSeed);
+    this.roadManager = new RoadManager(this.scene, initialSeed, initialSettings.environment);
     this.terrainManager = new TerrainManager(this.scene, this.roadManager.curve, initialSeed);
     this.skySystem = new SkySystem(this.scene);
     this.weatherSystem = new WeatherSystem(this.scene);
@@ -147,12 +147,23 @@ export class Game {
     useGameStore.getState().setIsOffroad(false);
   }
 
+  public setEnvironment(biome: BiomeType) {
+    this.roadManager.setBiome(biome);
+    this.terrainManager.setSeed(useGameStore.getState().seed, this.roadManager.curve);
+    useGameStore.getState().setBiome(biome);
+    const playerRoadDist = this.carController?.physics.roadDistance || 20;
+    this.roadManager.update(playerRoadDist);
+    this.terrainManager.update(playerRoadDist);
+  }
+
   public restartDrive(seed?: number) {
     const currentSeed = seed ?? useGameStore.getState().seed;
+    const settings = useSettingsStore.getState().settings;
     useGameStore.getState().setSeed(currentSeed);
     useGameStore.getState().resetDrive();
+    useGameStore.getState().setBiome(settings.environment);
 
-    this.roadManager.setSeed(currentSeed);
+    this.roadManager.setSeed(currentSeed, settings.environment);
     this.terrainManager.setSeed(currentSeed, this.roadManager.curve);
     this.trafficManager.clear();
 

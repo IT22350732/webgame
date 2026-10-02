@@ -70,7 +70,7 @@ export class SkySystem {
   private skyShaderMat: THREE.ShaderMaterial;
   private currentTime: TimeOfDay = 'DAY';
   private timeCycleProgress: number = 0.25; // 0=dawn, 0.25=day, 0.5=sunset, 0.75=night
-  private isDynamic: boolean = true;
+  private isDynamic: boolean = false;
   private elapsedSeconds = 0;
 
   constructor(scene: THREE.Scene) {
@@ -216,13 +216,17 @@ export class SkySystem {
   }
 
   public setTimeSetting(timeSetting: 'DYNAMIC' | TimeOfDay) {
-    if (timeSetting === 'DYNAMIC') {
-      this.isDynamic = true;
-    } else {
-      this.isDynamic = false;
-      this.currentTime = timeSetting;
-      this.applyPalette(PALETTES[timeSetting], 1.0);
-    }
+    this.isDynamic = false;
+    const finalTime: TimeOfDay = (timeSetting === 'DYNAMIC' || !timeSetting) ? 'DAY' : timeSetting;
+    this.currentTime = finalTime;
+    const progressMap: Record<TimeOfDay, number> = {
+      DAWN: 0.05,
+      DAY: 0.25,
+      SUNSET: 0.5,
+      NIGHT: 0.75,
+    };
+    this.timeCycleProgress = progressMap[finalTime] ?? 0.25;
+    this.applyPalette(PALETTES[finalTime], 1.0);
   }
 
   public update(dt: number, playerPos: THREE.Vector3, scene: THREE.Scene) {

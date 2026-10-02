@@ -98,6 +98,7 @@ export const App: React.FC = () => {
     gameRef.current.trafficManager.setTrafficSide(settings.trafficSide);
     gameRef.current.skySystem.setTimeSetting(settings.timeOfDay);
     gameRef.current.weatherSystem.setWeatherSetting(settings.weather);
+    gameRef.current.setEnvironment(settings.environment);
     if (gameRef.current.carController) {
       gameRef.current.carController.cameraFollow.setBaseFov(settings.fov);
     }

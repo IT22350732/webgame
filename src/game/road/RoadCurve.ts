@@ -16,22 +16,35 @@ export interface RoadAnchor {
 
 export class RoadCurve {
   public seed: number;
+  public selectedBiome: BiomeType;
   private rng: SeededRandom;
   private noise: TerrainNoise;
   private anchors: RoadAnchor[] = [];
   public readonly nodeSpacing = 60; // meters between control anchors
 
-  constructor(seed: number = 42) {
+  constructor(seed: number = 42, selectedBiome: BiomeType = 'COUNTRYSIDE') {
     this.seed = seed;
+    this.selectedBiome = selectedBiome;
     this.rng = new SeededRandom(seed);
     this.noise = new TerrainNoise(seed + 101);
     this.initFirstAnchors();
   }
 
-  public setSeed(seed: number) {
+  public setSeed(seed: number, biome?: BiomeType) {
     this.seed = seed;
+    if (biome) {
+      this.selectedBiome = biome;
+    }
     this.rng.setSeed(seed);
     this.noise.setSeed(seed + 101);
+    this.anchors = [];
+    this.initFirstAnchors();
+  }
+
+  public setBiome(biome: BiomeType) {
+    this.selectedBiome = biome;
+    this.rng.setSeed(this.seed);
+    this.noise.setSeed(this.seed + 101);
     this.anchors = [];
     this.initFirstAnchors();
   }
@@ -46,7 +59,7 @@ export class RoadCurve {
       position: initialPos.clone(),
       tangent: initialDir.clone(),
       bankAngle: 0,
-      biome: getBiomeForDistance(0),
+      biome: this.selectedBiome,
       hasGuardRail: false,
       isBridge: false,
     });
@@ -68,7 +81,7 @@ export class RoadCurve {
     const prev = this.anchors[this.anchors.length - 1];
     const index = prev.index + 1;
     const dist = index * this.nodeSpacing;
-    const biome = getBiomeForDistance(dist);
+    const biome = this.selectedBiome;
 
     // Continuous smooth directional turn using low-frequency noise
     // Gives long sweeping highways with occasional tighter mountain turns

@@ -6,8 +6,9 @@ const SETTINGS_STORAGE_KEY = 'roadscape_settings_v1';
 const defaultSettings: GameSettings = {
   graphicsQuality: 'HIGH',
   trafficDensity: 'MEDIUM',
-  weather: 'DYNAMIC',
-  timeOfDay: 'DYNAMIC',
+  environment: 'COUNTRYSIDE',
+  weather: 'CLEAR',
+  timeOfDay: 'DAY',
   trafficSide: 'LEFT', // Default left-hand traffic as per specifications
   defaultCamera: 'CHASE',
   masterVolume: 0.8,
@@ -28,6 +29,9 @@ function loadStoredSettings(): GameSettings {
     const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
+      if (parsed.weather === 'DYNAMIC') parsed.weather = 'CLEAR';
+      if (parsed.timeOfDay === 'DYNAMIC') parsed.timeOfDay = 'DAY';
+      if (!parsed.environment) parsed.environment = 'COUNTRYSIDE';
       return { ...defaultSettings, ...parsed };
     }
   } catch (e) {

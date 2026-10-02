@@ -50,6 +50,7 @@ export type ControlScheme = 'TILT' | 'TOUCH';
 export interface GameSettings {
   graphicsQuality: GraphicsQuality;
   trafficDensity: 'OFF' | 'LOW' | 'MEDIUM' | 'HIGH';
+  environment: BiomeType;
   weather: 'DYNAMIC' | WeatherType;
   timeOfDay: 'DYNAMIC' | TimeOfDay;
   trafficSide: TrafficSide;

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { RoadCurve } from './RoadCurve';
 import { RoadSegment } from './RoadSegment';
+import { BiomeType } from '../../types/game';
 
 const SEGMENT_LENGTH = 80; // 80 meters per segment
 const LOOKAHEAD_DIST = 720; // Generate up to 720m ahead
@@ -12,15 +13,21 @@ export class RoadManager {
   private segments: Map<number, RoadSegment> = new Map();
   private maxSpawnedSegmentId = -1;
 
-  constructor(scene: THREE.Scene, seed: number = 42) {
-    this.curve = new RoadCurve(seed);
+  constructor(scene: THREE.Scene, seed: number = 42, biome: BiomeType = 'COUNTRYSIDE') {
+    this.curve = new RoadCurve(seed, biome);
     this.group = new THREE.Group();
     scene.add(this.group);
   }
 
-  public setSeed(seed: number) {
+  public setSeed(seed: number, biome?: BiomeType) {
     this.clear();
-    this.curve.setSeed(seed);
+    this.curve.setSeed(seed, biome);
+    this.maxSpawnedSegmentId = -1;
+  }
+
+  public setBiome(biome: BiomeType) {
+    this.clear();
+    this.curve.setBiome(biome);
     this.maxSpawnedSegmentId = -1;
   }
 

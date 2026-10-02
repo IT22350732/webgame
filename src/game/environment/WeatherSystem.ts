@@ -49,29 +49,17 @@ export class WeatherSystem {
   }
 
   public setWeatherSetting(setting: 'DYNAMIC' | WeatherType) {
-    if (setting === 'DYNAMIC') {
-      this.isDynamic = true;
-    } else {
-      this.isDynamic = false;
-      this.targetWeather = setting;
-      this.currentWeather = setting;
-    }
+    this.isDynamic = false;
+    const finalWeather: WeatherType = setting === 'DYNAMIC' ? 'CLEAR' : setting;
+    this.targetWeather = finalWeather;
+    this.currentWeather = finalWeather;
   }
 
   public update(dt: number, playerPos: THREE.Vector3, scene: THREE.Scene) {
     // Keep weather particles centered around player
     this.group.position.set(playerPos.x, playerPos.y, playerPos.z);
 
-    // Dynamic weather transitions every ~120s
-    if (this.isDynamic) {
-      this.weatherTimer += dt;
-      if (this.weatherTimer > 120) {
-        this.weatherTimer = 0;
-        const weathers: WeatherType[] = ['CLEAR', 'CLEAR', 'CLOUDY', 'RAIN', 'FOG'];
-        this.targetWeather = weathers[Math.floor(Math.random() * weathers.length)];
-        this.currentWeather = this.targetWeather;
-      }
-    }
+    // Weather is strictly locked to the selected condition - no automatic changing while driving forward
 
     // Fog Density target - light and clear for maximum visibility
     if (this.currentWeather === 'FOG') {

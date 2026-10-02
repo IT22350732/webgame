@@ -6,6 +6,7 @@ import { audioManager } from '../../game/audio/AudioManager';
 import { tiltManager } from '../../utils/tiltManager';
 import { triggerHaptic } from '../../utils/haptics';
 import { useFullscreen } from '../../utils/fullscreen';
+import { BIOMES } from '../../game/world/biomeConfigs';
 
 interface MainMenuProps {
   onStartDrive: () => void;
@@ -25,6 +26,8 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   const bestDistance = useGameStore((s) => s.bestDistance);
   const totalDistance = useGameStore((s) => s.totalDistance);
   const controlScheme = useSettingsStore((s) => s.settings.controlScheme);
+  const settings = useSettingsStore((s) => s.settings);
+  const currentBiomeConfig = BIOMES[settings.environment || 'COUNTRYSIDE'] || BIOMES.COUNTRYSIDE;
 
   const [seedInput, setSeedInput] = useState(seed.toString());
   const { isFullscreen, toggleFullscreen } = useFullscreen();
@@ -360,6 +363,48 @@ export const MainMenu: React.FC<MainMenuProps> = ({
             style={{ padding: '8px 10px', borderRadius: '8px' }}
           >
             <Shuffle size={14} />
+          </button>
+        </div>
+
+        {/* Selected Environment & Weather Indicator */}
+        <div
+          className="glass-panel"
+          style={{
+            padding: '10px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '8px',
+            background: 'rgba(15, 23, 42, 0.65)',
+            marginTop: '2px',
+          }}
+        >
+          <div style={{ overflow: 'hidden' }}>
+            <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+              Environment & Weather (Fixed)
+            </div>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px', whiteSpace: 'nowrap' }}>
+              <span
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: currentBiomeConfig.terrainColor,
+                  boxShadow: `0 0 6px ${currentBiomeConfig.terrainColor}`,
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentBiomeConfig.name}</span>
+              <span style={{ color: '#64748b' }}>•</span>
+              <span style={{ color: '#38bdf8' }}>{settings.weather}</span>
+            </div>
+          </div>
+          <button
+            onClick={() => { triggerHaptic(12); audioManager.playClick(); onOpenSettings(); }}
+            className="glass-btn"
+            style={{ padding: '6px 10px', fontSize: '11px', borderRadius: '8px', flexShrink: 0 }}
+          >
+            Change
           </button>
         </div>
 
