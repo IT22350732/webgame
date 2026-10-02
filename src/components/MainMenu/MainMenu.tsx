@@ -265,13 +265,31 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
         <div
           style={{
-            fontSize: '11px',
-            color: '#64748b',
-            letterSpacing: '0.8px',
-            textTransform: 'uppercase',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            gap: '4px',
           }}
         >
-          WASD or Tilt Phone to Steer • Tap to Drive
+          <div
+            style={{
+              fontSize: '11px',
+              color: '#64748b',
+              letterSpacing: '0.8px',
+              textTransform: 'uppercase',
+            }}
+          >
+            WASD or Tilt Phone to Steer • Tap to Drive
+          </div>
+          <div
+            style={{
+              fontSize: '10px',
+              color: '#94a3b8',
+              letterSpacing: '0.5px',
+            }}
+          >
+            © 2026 <strong style={{ color: '#f8fafc' }}>Imeth Mendis</strong> • All Rights Reserved
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Sparkles, Keyboard, Smartphone } from 'lucide-react';
+import { X, Sparkles, Keyboard, Smartphone, ShieldCheck } from 'lucide-react';
 import { audioManager } from '../../game/audio/AudioManager';
 import { triggerHaptic } from '../../utils/haptics';
 
@@ -53,6 +53,30 @@ export const AboutModal: React.FC<AboutModalProps> = ({ onClose }) => {
           >
             <X size={18} />
           </button>
+        </div>
+
+        {/* Ownership & Copyright Banner */}
+        <div
+          style={{
+            background: 'rgba(56, 189, 248, 0.12)',
+            borderRadius: '14px',
+            padding: '14px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            border: '1px solid rgba(56, 189, 248, 0.35)',
+            boxShadow: '0 4px 18px rgba(56, 189, 248, 0.18)',
+          }}
+        >
+          <ShieldCheck size={24} color="#38bdf8" style={{ flexShrink: 0 }} />
+          <div>
+            <div style={{ fontSize: '13px', fontWeight: 800, color: '#ffffff', letterSpacing: '0.5px' }}>
+              Owner & Creator: <span style={{ color: '#38bdf8' }}>Imeth Mendis</span>
+            </div>
+            <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+              © 2026 Imeth Mendis. All rights reserved.
+            </div>
+          </div>
         </div>
 
         {/* Narrative / Features */}
