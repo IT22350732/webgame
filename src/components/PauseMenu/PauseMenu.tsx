@@ -89,6 +89,10 @@ export const PauseMenu: React.FC<PauseMenuProps> = ({
           <Home size={16} color="#38bdf8" />
           <span>MAIN MENU</span>
         </button>
+
+        <div style={{ fontSize: '11px', color: '#94a3b8', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '10px', marginTop: '4px' }}>
+          Owner: <strong style={{ color: '#38bdf8' }}>Imeth Mendis</strong> (All rights reserved)
+        </div>
       </div>
     </div>
   );

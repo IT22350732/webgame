@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, Compass, Sliders, Info, Shuffle, Award, Route, Smartphone } from 'lucide-react';
+import { Play, Compass, Sliders, Info, Shuffle, Award, Route, Smartphone, ShieldCheck } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { audioManager } from '../../game/audio/AudioManager';
@@ -109,6 +109,27 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           >
             Endless Scenic Driving Experience
           </p>
+
+          {/* Prominent Owner Notice */}
+          <div
+            className="glass-panel"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 14px',
+              marginTop: '10px',
+              borderRadius: '20px',
+              background: 'rgba(56, 189, 248, 0.16)',
+              borderColor: 'rgba(56, 189, 248, 0.45)',
+              boxShadow: '0 0 16px rgba(56, 189, 248, 0.25)',
+            }}
+          >
+            <ShieldCheck size={15} color="#38bdf8" />
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc', letterSpacing: '0.4px' }}>
+              Owner: <strong style={{ color: '#38bdf8' }}>Imeth Mendis</strong> (All rights reserved)
+            </span>
+          </div>
         </div>
       </div>
 

@@ -73,13 +73,12 @@ export const CarSelector: React.FC<CarSelectorProps> = ({ onBack, onCarChanged }
             style={{
               fontSize: '11px',
               color: '#94a3b8',
-              letterSpacing: '1.5px',
-              textTransform: 'uppercase',
+              letterSpacing: '1px',
               margin: 0,
               textAlign: 'right',
             }}
           >
-            Choose your vehicle
+            Owner: <strong style={{ color: '#38bdf8' }}>Imeth Mendis</strong> (All rights reserved)
           </p>
         </div>
       </div>
