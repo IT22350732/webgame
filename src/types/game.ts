@@ -45,6 +45,8 @@ export interface CarConfig {
   wheelRadius: number;
 }
 
+export type ControlScheme = 'TILT' | 'TOUCH';
+
 export interface GameSettings {
   graphicsQuality: GraphicsQuality;
   trafficDensity: 'OFF' | 'LOW' | 'MEDIUM' | 'HIGH';
@@ -57,6 +59,13 @@ export interface GameSettings {
   ambientVolume: number;
   fov: number;
   showFps: boolean;
+  // Mobile & Tilt Settings
+  controlScheme: ControlScheme;
+  tiltSensitivity: number; // 0.5 to 2.5
+  tiltDeadzone: number;    // degrees (0 to 8)
+  tiltInvert: boolean;     // invert tilt direction
+  autoAccelerate: boolean; // auto gas pedal
+  hapticFeedback: boolean; // mobile vibration
 }
 
 export interface RoadPoint {

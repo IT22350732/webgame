@@ -5,6 +5,7 @@ import { useSettingsStore } from './store/settingsStore';
 import { MainMenu } from './components/MainMenu/MainMenu';
 import { GameHUD } from './components/GameUI/GameHUD';
 import { MobileControls } from './components/GameUI/MobileControls';
+import { OrientationHint } from './components/GameUI/OrientationHint';
 import { CarSelector } from './components/CarSelector/CarSelector';
 import { SettingsModal } from './components/Settings/SettingsModal';
 import { PauseMenu } from './components/PauseMenu/PauseMenu';
@@ -22,25 +23,22 @@ export const App: React.FC = () => {
   const toggleDebug = useGameStore((s) => s.toggleDebug);
   const cycleCameraMode = useGameStore((s) => s.cycleCameraMode);
 
-  const [isWebGlSupported, setIsWebGlSupported] = useState(true);
+  const [isWebGlSupported] = useState(() => {
+    try {
+      const testCanvas = document.createElement('canvas');
+      const gl = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl');
+      return !!gl;
+    } catch {
+      return false;
+    }
+  });
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // Initialize Game Engine
   useEffect(() => {
-    // 1. WebGL Support test
-    try {
-      const testCanvas = document.createElement('canvas');
-      const gl = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl');
-      if (!gl) {
-        setIsWebGlSupported(false);
-        return;
-      }
-    } catch {
-      setIsWebGlSupported(false);
-      return;
-    }
+    if (!isWebGlSupported) return;
 
     if (containerRef.current && !gameRef.current) {
       gameRef.current = new Game(containerRef.current);
@@ -62,7 +60,27 @@ export const App: React.FC = () => {
         gameRef.current = null;
       }
     };
-  }, [toggleDebug]);
+  }, [toggleDebug, isWebGlSupported]);
+
+  // Keep screen awake while driving (WakeLock API)
+  useEffect(() => {
+    let wakeLock: any = null;
+
+    if (gameState === 'PLAYING' && 'wakeLock' in navigator) {
+      (navigator as any).wakeLock
+        .request('screen')
+        .then((lock: any) => {
+          wakeLock = lock;
+        })
+        .catch(() => {});
+    }
+
+    return () => {
+      if (wakeLock) {
+        wakeLock.release().catch(() => {});
+      }
+    };
+  }, [gameState]);
 
   // Apply updated settings directly to runtime subsystems
   const applySettingsToEngine = () => {
@@ -110,28 +128,41 @@ export const App: React.FC = () => {
 
   if (!isWebGlSupported) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        color: '#f87171',
-        fontSize: '20px',
-        textAlign: 'center',
-        padding: '20px',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+          color: '#f87171',
+          fontSize: '20px',
+          textAlign: 'center',
+          padding: '20px',
+        }}
+      >
         Your browser does not support WebGL required for this game.
       </div>
     );
   }
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        touchAction: 'none',
+      }}
+    >
       {/* 3D Scene Container */}
       <div ref={containerRef} className="game-canvas-container" />
 
       {/* Loading Overlay */}
       {isLoading && <LoadingScreen />}
+
+      {/* Mobile Orientation Hint */}
+      <OrientationHint />
 
       {/* F3 Telemetry Overlay */}
       <DebugOverlay />
@@ -168,7 +199,10 @@ export const App: React.FC = () => {
             }}
           />
           {gameState === 'PLAYING' && (
-            <MobileControls onInputsChange={handleTouchInputs} />
+            <MobileControls
+              onInputsChange={handleTouchInputs}
+              onResetCar={handleResetCar}
+            />
           )}
         </>
       )}

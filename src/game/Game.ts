@@ -90,6 +90,10 @@ export class Game {
     // Resize listener
     this.boundResize = this.handleResize.bind(this);
     window.addEventListener('resize', this.boundResize);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(this.boundResize, 100);
+      setTimeout(this.boundResize, 300);
+    });
 
     // Start loop
     this.start();
@@ -167,11 +171,12 @@ export class Game {
 
   private handleResize() {
     if (!this.container) return;
-    const w = this.container.clientWidth;
-    const h = this.container.clientHeight;
+    const w = this.container.clientWidth || window.innerWidth;
+    const h = this.container.clientHeight || window.innerHeight;
     this.camera.aspect = w / Math.max(1, h);
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
   }
 
   public start() {

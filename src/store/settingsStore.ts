@@ -15,6 +15,12 @@ const defaultSettings: GameSettings = {
   ambientVolume: 0.6,
   fov: 65,
   showFps: false,
+  controlScheme: 'TILT',
+  tiltSensitivity: 1.2,
+  tiltDeadzone: 2.5,
+  tiltInvert: false,
+  autoAccelerate: false,
+  hapticFeedback: true,
 };
 
 function loadStoredSettings(): GameSettings {

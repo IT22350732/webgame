@@ -4,6 +4,7 @@ import { CarModel } from './CarModel';
 import { CarPhysics, CarInputs } from './CarPhysics';
 import { CarCamera } from './CarCamera';
 import { RoadManager } from '../road/RoadManager';
+import { triggerHaptic } from '../../utils/haptics';
 
 export class CarController {
   public config: CarConfig;
@@ -162,6 +163,9 @@ export class CarController {
 
     // Shake camera
     this.cameraFollow.addTrauma(trauma);
+
+    // Mobile tactile vibration on crash
+    triggerHaptic([30, 25, 50]);
   }
 
   public update(dt: number, roadManager: RoadManager, isNight: boolean) {
