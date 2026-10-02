@@ -15,6 +15,7 @@ import {
 import { useGameStore } from '../../store/gameStore';
 import { BIOMES } from '../../game/world/biomeConfigs';
 import { triggerHaptic } from '../../utils/haptics';
+import { useFullscreen } from '../../utils/fullscreen';
 
 interface GameHUDProps {
   onPause: () => void;
@@ -35,27 +36,11 @@ export const GameHUD: React.FC<GameHUDProps> = ({
   const cameraMode = useGameStore((s) => s.cameraMode);
   const isOffroad = useGameStore((s) => s.isOffroad);
 
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const { isFullscreen, toggleFullscreen } = useFullscreen();
 
-  useEffect(() => {
-    const handleFsChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFsChange);
-    return () => document.removeEventListener('fullscreenchange', handleFsChange);
-  }, []);
-
-  const toggleFullscreen = async () => {
+  const handleToggleFullscreen = async () => {
     triggerHaptic(15);
-    try {
-      if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen?.();
-      } else {
-        await document.exitFullscreen?.();
-      }
-    } catch {
-      // Fullscreen not supported or blocked
-    }
+    await toggleFullscreen();
   };
 
   const biomeConfig = BIOMES[currentBiome];
@@ -176,9 +161,9 @@ export const GameHUD: React.FC<GameHUDProps> = ({
 
           {/* Fullscreen Toggle */}
           <button
-            onClick={toggleFullscreen}
+            onClick={handleToggleFullscreen}
             className="glass-btn"
-            title="Toggle Fullscreen"
+            title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
             style={{ padding: '8px', borderRadius: '10px', minWidth: '36px', height: '36px' }}
           >
             {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}

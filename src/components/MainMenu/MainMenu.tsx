@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Play, Compass, Sliders, Info, Shuffle, Award, Route, Smartphone, ShieldCheck } from 'lucide-react';
+import { Play, Compass, Sliders, Info, Shuffle, Award, Route, Smartphone, ShieldCheck, Maximize, Minimize } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { audioManager } from '../../game/audio/AudioManager';
 import { tiltManager } from '../../utils/tiltManager';
 import { triggerHaptic } from '../../utils/haptics';
+import { useFullscreen } from '../../utils/fullscreen';
 
 interface MainMenuProps {
   onStartDrive: () => void;
@@ -26,6 +27,13 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   const controlScheme = useSettingsStore((s) => s.settings.controlScheme);
 
   const [seedInput, setSeedInput] = useState(seed.toString());
+  const { isFullscreen, toggleFullscreen } = useFullscreen();
+
+  const handleToggleFullscreen = async () => {
+    triggerHaptic(15);
+    audioManager.playClick();
+    await toggleFullscreen();
+  };
 
   const handleRandomizeSeed = () => {
     triggerHaptic(15);
@@ -78,8 +86,17 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         overflowY: 'auto',
       }}
     >
-      {/* Top Header / Branding */}
-      <div style={{ pointerEvents: 'auto' }}>
+      {/* Top Header / Branding & Fullscreen Toggle */}
+      <div
+        style={{
+          pointerEvents: 'auto',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: '16px',
+          width: '100%',
+        }}
+      >
         <div style={{ display: 'inline-block' }}>
           <h1
             style={{
@@ -131,6 +148,28 @@ export const MainMenu: React.FC<MainMenuProps> = ({
             </span>
           </div>
         </div>
+
+        {/* Quick Fullscreen Button */}
+        <button
+          onClick={handleToggleFullscreen}
+          className="glass-btn"
+          title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+          style={{
+            padding: '10px 16px',
+            borderRadius: '14px',
+            gap: '8px',
+            fontSize: '12px',
+            letterSpacing: '0.8px',
+            fontWeight: 700,
+            background: isFullscreen ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.08)',
+            borderColor: isFullscreen ? '#38bdf8' : 'rgba(255, 255, 255, 0.2)',
+            boxShadow: isFullscreen ? '0 0 16px rgba(56, 189, 248, 0.3)' : undefined,
+            flexShrink: 0,
+          }}
+        >
+          {isFullscreen ? <Minimize size={16} color="#38bdf8" /> : <Maximize size={16} color="#38bdf8" />}
+          <span>{isFullscreen ? 'FULLSCREEN ON' : 'FULLSCREEN'}</span>
+        </button>
       </div>
 
       {/* Center Left: Action Menu */}

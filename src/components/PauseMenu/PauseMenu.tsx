@@ -1,7 +1,8 @@
 import React from 'react';
-import { Play, RotateCcw, Sliders, Home } from 'lucide-react';
+import { Play, RotateCcw, Sliders, Home, Maximize, Minimize } from 'lucide-react';
 import { audioManager } from '../../game/audio/AudioManager';
 import { triggerHaptic } from '../../utils/haptics';
+import { useFullscreen } from '../../utils/fullscreen';
 
 interface PauseMenuProps {
   onResume: () => void;
@@ -16,6 +17,14 @@ export const PauseMenu: React.FC<PauseMenuProps> = ({
   onOpenSettings,
   onMainMenu,
 }) => {
+  const { isFullscreen, toggleFullscreen } = useFullscreen();
+
+  const handleToggleFullscreen = async () => {
+    triggerHaptic(15);
+    audioManager.playClick();
+    await toggleFullscreen();
+  };
+
   return (
     <div
       style={{
@@ -70,6 +79,15 @@ export const PauseMenu: React.FC<PauseMenuProps> = ({
         >
           <RotateCcw size={16} color="#38bdf8" />
           <span>RESTART DRIVE</span>
+        </button>
+
+        <button
+          onClick={handleToggleFullscreen}
+          className="glass-btn"
+          style={{ padding: '13px', fontSize: '14px' }}
+        >
+          {isFullscreen ? <Minimize size={16} color="#38bdf8" /> : <Maximize size={16} color="#38bdf8" />}
+          <span>{isFullscreen ? 'EXIT FULLSCREEN' : 'FULLSCREEN MODE'}</span>
         </button>
 
         <button

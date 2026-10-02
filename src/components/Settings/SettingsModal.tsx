@@ -7,11 +7,14 @@ import {
   Navigation,
   Smartphone,
   Crosshair,
+  Maximize,
+  Minimize,
 } from 'lucide-react';
 import { useSettingsStore } from '../../store/settingsStore';
 import { audioManager } from '../../game/audio/AudioManager';
 import { tiltManager } from '../../utils/tiltManager';
 import { triggerHaptic } from '../../utils/haptics';
+import { useFullscreen } from '../../utils/fullscreen';
 import {
   CameraMode,
   ControlScheme,
@@ -30,6 +33,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onApplySe
   const settings = useSettingsStore((s) => s.settings);
   const updateSetting = useSettingsStore((s) => s.updateSetting);
 
+  const { isFullscreen, toggleFullscreen, isIOS } = useFullscreen();
   const [liveTiltAngle, setLiveTiltAngle] = useState(0);
 
   useEffect(() => {
@@ -530,6 +534,63 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onApplySe
                     {cam === 'CHASE' ? 'Third Person' : 'Cockpit'}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Display Mode (Windowed vs Fullscreen) */}
+            <div>
+              <label style={{ fontSize: '12px', color: '#94a3b8', display: 'block', marginBottom: '6px' }}>
+                Screen Display Mode
+              </label>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (isFullscreen) {
+                      triggerHaptic(15);
+                      audioManager.playClick();
+                      await toggleFullscreen();
+                    }
+                  }}
+                  className="glass-btn"
+                  style={{
+                    flex: 1,
+                    padding: '8px',
+                    fontSize: '11px',
+                    gap: '6px',
+                    background: !isFullscreen ? 'rgba(56, 189, 248, 0.3)' : undefined,
+                    borderColor: !isFullscreen ? '#38bdf8' : undefined,
+                  }}
+                >
+                  <Minimize size={13} />
+                  <span>Windowed</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!isFullscreen) {
+                      triggerHaptic(15);
+                      audioManager.playClick();
+                      await toggleFullscreen();
+                    }
+                  }}
+                  className="glass-btn"
+                  style={{
+                    flex: 1,
+                    padding: '8px',
+                    fontSize: '11px',
+                    gap: '6px',
+                    background: isFullscreen ? 'rgba(56, 189, 248, 0.3)' : undefined,
+                    borderColor: isFullscreen ? '#38bdf8' : undefined,
+                  }}
+                >
+                  <Maximize size={13} />
+                  <span>Fullscreen</span>
+                </button>
+              </div>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '4px' }}>
+                {isIOS ? 'Supports iPhone Safari (immersive mode & PWA)' : 'Border-free immersive driving view'}
               </div>
             </div>
           </div>

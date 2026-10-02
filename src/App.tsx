@@ -12,7 +12,9 @@ import { PauseMenu } from './components/PauseMenu/PauseMenu';
 import { AboutModal } from './components/About/AboutModal';
 import { DebugOverlay } from './components/DebugOverlay/DebugOverlay';
 import { LoadingScreen } from './components/LoadingScreen/LoadingScreen';
+import { IosFullscreenToast } from './components/GameUI/IosFullscreenToast';
 import { CarInputs } from './game/car/CarPhysics';
+import { toggleFullscreen } from './utils/fullscreen';
 
 export const App: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -44,11 +46,17 @@ export const App: React.FC = () => {
       gameRef.current = new Game(containerRef.current);
     }
 
-    // F3 Listener for Debug Overlay
+    // Key listeners (F3 for debug, F for fullscreen)
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'F3') {
         e.preventDefault();
         toggleDebug();
+      } else if (e.code === 'KeyF') {
+        const tag = (document.activeElement?.tagName || '').toLowerCase();
+        if (tag !== 'input' && tag !== 'textarea') {
+          e.preventDefault();
+          toggleFullscreen();
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -163,6 +171,9 @@ export const App: React.FC = () => {
 
       {/* Mobile Orientation Hint */}
       <OrientationHint />
+
+      {/* iPhone Safari Fullscreen Guide Toast */}
+      <IosFullscreenToast />
 
       {/* F3 Telemetry Overlay */}
       <DebugOverlay />
