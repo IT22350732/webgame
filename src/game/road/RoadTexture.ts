@@ -12,8 +12,8 @@ export function getRoadTexture(): THREE.CanvasTexture {
   canvas.height = height;
   const ctx = canvas.getContext('2d')!;
 
-  // 1. Base High-Definition Stone Mastic Asphalt
-  ctx.fillStyle = '#1c1e22';
+  // 1. Base High-Definition Stone Mastic Asphalt (Clear medium-slate highway surface)
+  ctx.fillStyle = '#374151';
   ctx.fillRect(0, 0, width, height);
 
   // Procedural aggregate noise
@@ -22,19 +22,17 @@ export function getRoadTexture(): THREE.CanvasTexture {
   for (let i = 0; i < data.length; i += 4) {
     // Mineral aggregate speckles
     const n = Math.random();
-    let grain = (n - 0.5) * 22;
-    if (n > 0.985) grain += 40; // light stone speck
-    if (n < 0.015) grain -= 25; // dark bitumen pit
+    let grain = (n - 0.5) * 18;
+    if (n > 0.985) grain += 45; // light stone speck
+    if (n < 0.015) grain -= 15; // subtle speckle
 
     data[i] = Math.max(0, Math.min(255, data[i] + grain));
-    data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + grain * 0.95));
-    data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + grain * 0.9));
+    data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + grain * 0.96));
+    data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + grain * 0.92));
   }
   ctx.putImageData(imgData, 0, 0);
 
-  // 2. Realistic Tire Wear Paths (two lanes, each lane has 2 wheel wear tracks)
-  // Left lane wheel tracks: ~22% and ~38% across width
-  // Right lane wheel tracks: ~62% and ~78% across width
+  // 2. Realistic Tire Wear Paths (Soft, natural shading without dark blotches)
   const wearTracks = [
     width * 0.22,
     width * 0.38,
@@ -42,32 +40,31 @@ export function getRoadTexture(): THREE.CanvasTexture {
     width * 0.78,
   ];
 
-  ctx.fillStyle = 'rgba(12, 13, 15, 0.45)';
   wearTracks.forEach((trackX) => {
-    const trackWidth = width * 0.07;
+    const trackWidth = width * 0.065;
     const grad = ctx.createLinearGradient(trackX - trackWidth * 0.5, 0, trackX + trackWidth * 0.5, 0);
-    grad.addColorStop(0, 'rgba(15, 17, 20, 0)');
-    grad.addColorStop(0.5, 'rgba(10, 11, 13, 0.35)');
-    grad.addColorStop(1, 'rgba(15, 17, 20, 0)');
+    grad.addColorStop(0, 'rgba(30, 41, 59, 0)');
+    grad.addColorStop(0.5, 'rgba(30, 41, 59, 0.16)');
+    grad.addColorStop(1, 'rgba(30, 41, 59, 0)');
     ctx.fillStyle = grad;
     ctx.fillRect(trackX - trackWidth * 0.5, 0, trackWidth, height);
   });
 
-  // 3. Realistic Gravel / Shoulder Strips (left 11% and right 11%)
+  // 3. Realistic Gravel / Shoulder Strips (Clear, bright gravel stone)
   const shoulderW = width * 0.11;
   const gradL = ctx.createLinearGradient(0, 0, shoulderW, 0);
-  gradL.addColorStop(0, '#574d3f');
-  gradL.addColorStop(0.4, '#483f34');
-  gradL.addColorStop(0.8, '#322c24');
-  gradL.addColorStop(1, '#1c1e22');
+  gradL.addColorStop(0, '#9ca3af');
+  gradL.addColorStop(0.4, '#6b7280');
+  gradL.addColorStop(0.8, '#4b5563');
+  gradL.addColorStop(1, '#374151');
   ctx.fillStyle = gradL;
   ctx.fillRect(0, 0, shoulderW, height);
 
   const gradR = ctx.createLinearGradient(width - shoulderW, 0, width, 0);
-  gradR.addColorStop(0, '#1c1e22');
-  gradR.addColorStop(0.2, '#322c24');
-  gradR.addColorStop(0.6, '#483f34');
-  gradR.addColorStop(1, '#574d3f');
+  gradR.addColorStop(0, '#374151');
+  gradR.addColorStop(0.2, '#4b5563');
+  gradR.addColorStop(0.6, '#6b7280');
+  gradR.addColorStop(1, '#9ca3af');
   ctx.fillStyle = gradR;
   ctx.fillRect(width - shoulderW, 0, shoulderW, height);
 

@@ -55,8 +55,8 @@ export class TerrainChunk {
     const baseColor = new THREE.Color(biomeConfig.terrainColor);
     const secColor = new THREE.Color(biomeConfig.terrainSecondaryColor);
     const rockColor = new THREE.Color(biomeConfig.rockColor);
-    const cliffColor = new THREE.Color('#3f3f46');
-    const sandColor = new THREE.Color('#eab308');
+    const cliffColor = new THREE.Color('#94a3b8'); // clear, light granite cliff strata
+    const sandColor = new THREE.Color('#fde047'); // bright sunlit golden sand
 
     let vIdx = 0;
     let uvIdx = 0;
@@ -176,8 +176,8 @@ export class TerrainChunk {
 
     const mat = new THREE.MeshStandardMaterial({
       vertexColors: true,
-      roughness: 0.92,
-      metalness: 0.04,
+      roughness: 0.8,
+      metalness: 0.02,
       flatShading: true,
     });
 
@@ -185,15 +185,15 @@ export class TerrainChunk {
     this.terrainMesh.receiveShadow = true;
     this.group.add(this.terrainMesh);
 
-    // Realistic Coastal Water with Wave Shader
+    // Realistic Coastal Water with Wave Shader (Bright luminous azure ocean)
     if (this.biome === 'COASTAL') {
       const oceanGeo = new THREE.PlaneGeometry(180, length + 20, 16, 16);
       const oceanMat = new THREE.MeshStandardMaterial({
-        color: 0x0284c7,
-        roughness: 0.15,
-        metalness: 0.4,
+        color: 0x0ea5e9,
+        roughness: 0.1,
+        metalness: 0.25,
         transparent: true,
-        opacity: 0.88,
+        opacity: 0.85,
       });
       const ocean = new THREE.Mesh(oceanGeo, oceanMat);
       ocean.rotation.x = -Math.PI / 2;

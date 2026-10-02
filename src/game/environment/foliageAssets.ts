@@ -78,8 +78,8 @@ export function createFoliageAssets(): FoliageAssetCollection {
   ]);
 
   const pineMat = new THREE.MeshStandardMaterial({
-    color: 0x144222,
-    roughness: 0.75,
+    color: 0x16a34a, // vibrant evergreen pine needles (was dark 0x144222)
+    roughness: 0.65,
     metalness: 0.05,
     flatShading: true,
   });
@@ -98,8 +98,8 @@ export function createFoliageAssets(): FoliageAssetCollection {
   ]);
 
   const oakMat = new THREE.MeshStandardMaterial({
-    color: 0x365314, // deep rich foliage green
-    roughness: 0.8,
+    color: 0x65a30d, // sunlit lush green oak foliage (was dark 0x365314)
+    roughness: 0.7,
     metalness: 0.02,
     flatShading: true,
   });
@@ -118,8 +118,8 @@ export function createFoliageAssets(): FoliageAssetCollection {
   ]);
 
   const palmMat = new THREE.MeshStandardMaterial({
-    color: 0x166534,
-    roughness: 0.75,
+    color: 0x22c55e, // bright tropical palm fronds
+    roughness: 0.65,
     metalness: 0.05,
     flatShading: true,
   });
@@ -132,8 +132,8 @@ export function createFoliageAssets(): FoliageAssetCollection {
     { geo: bush2, offset: new THREE.Vector3(0.6, 0.7, 0.4) },
   ]);
   const dryBushMat = new THREE.MeshStandardMaterial({
-    color: 0xb45309,
-    roughness: 0.9,
+    color: 0xd97706, // warm bright desert amber scrub
+    roughness: 0.8,
     flatShading: true,
   });
 
@@ -149,9 +149,9 @@ export function createFoliageAssets(): FoliageAssetCollection {
   ]);
 
   const birchMat = new THREE.MeshStandardMaterial({
-    color: 0x4d7c0f,
-    roughness: 0.8,
-    metalness: 0.05,
+    color: 0x84cc16, // luminous lime spring birch foliage
+    roughness: 0.7,
+    metalness: 0.04,
     flatShading: true,
   });
 
@@ -164,17 +164,17 @@ export function createFoliageAssets(): FoliageAssetCollection {
   ]);
 
   const rockMat = new THREE.MeshStandardMaterial({
-    color: 0x64748b,
-    roughness: 0.88,
-    metalness: 0.15,
+    color: 0x94a3b8, // clear, light granite stone (was dark 0x64748b)
+    roughness: 0.8,
+    metalness: 0.1,
     flatShading: true,
   });
 
   // 7. Wild roadside flowers / grass tufts
   const flowerGeo = new THREE.ConeGeometry(0.4, 0.8, 5);
   const flowerMat = new THREE.MeshStandardMaterial({
-    color: 0xfacc15,
-    roughness: 0.8,
+    color: 0xfde047, // bright glowing yellow flowers
+    roughness: 0.7,
     flatShading: true,
   });
 

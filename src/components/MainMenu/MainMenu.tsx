@@ -82,7 +82,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         padding: 'max(24px, env(safe-area-inset-top)) max(28px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(28px, env(safe-area-inset-left))',
         zIndex: 10,
         pointerEvents: 'none',
-        background: 'radial-gradient(circle at 50% 30%, rgba(3, 7, 18, 0.25) 0%, rgba(3, 7, 18, 0.8) 100%)',
+        background: 'radial-gradient(circle at 50% 30%, rgba(3, 7, 18, 0.05) 0%, rgba(3, 7, 18, 0.45) 100%)',
         overflowY: 'auto',
       }}
     >

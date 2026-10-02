@@ -245,9 +245,9 @@ export class RoadSegment {
     if (frame.position.y > 5) {
       const pillarGeo = new THREE.CylinderGeometry(1.4, 1.8, frame.position.y + 6, 12);
       const pillarMat = new THREE.MeshStandardMaterial({
-        color: 0x475569,
-        roughness: 0.85,
-        metalness: 0.1,
+        color: 0x94a3b8, // clean light architectural concrete
+        roughness: 0.75,
+        metalness: 0.05,
       });
       const pillar = new THREE.Mesh(pillarGeo, pillarMat);
       pillar.position.set(frame.position.x, (frame.position.y - 3) * 0.5, frame.position.z);
@@ -258,7 +258,7 @@ export class RoadSegment {
 
       // Concrete side parapet walls along bridge
       const parapetGeo = new THREE.BoxGeometry(0.35, 0.9, this.endDist - this.startDist);
-      const parapetMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.8 });
+      const parapetMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.7 });
 
       const halfW = ROAD_WIDTH * 0.5 + 0.1;
       const parapetL = new THREE.Mesh(parapetGeo, parapetMat);

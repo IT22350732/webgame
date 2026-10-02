@@ -15,48 +15,48 @@ interface SkyPalette {
 
 const PALETTES: Record<TimeOfDay, SkyPalette> = {
   DAWN: {
-    topColor: '#1e1b4b', // deep indigo twilight
-    horizonColor: '#f97316', // vibrant sunrise orange
-    bottomColor: '#431407',
-    sunColor: '#fed7aa',
-    sunIntensity: 1.4,
-    ambientColor: '#7c2d12',
-    ambientIntensity: 0.55,
-    sunElevation: 0.14,
-    fogColor: '#ea580c',
+    topColor: '#38bdf8', // crisp morning azure
+    horizonColor: '#fed7aa', // bright warm sunrise peach
+    bottomColor: '#fef3c7',
+    sunColor: '#fffbeb',
+    sunIntensity: 2.4,
+    ambientColor: '#fed7aa',
+    ambientIntensity: 1.15,
+    sunElevation: 0.22,
+    fogColor: '#fef3c7',
   },
   DAY: {
-    topColor: '#0369a1', // deep atmospheric blue
-    horizonColor: '#93c5fd', // bright sky blue
-    bottomColor: '#f1f5f9',
-    sunColor: '#fffef0',
-    sunIntensity: 2.2,
-    ambientColor: '#dbeafe',
-    ambientIntensity: 0.85,
-    sunElevation: 1.15,
-    fogColor: '#cbd5e1',
+    topColor: '#0284c7', // vibrant clear sky blue
+    horizonColor: '#bae6fd', // luminous bright horizon
+    bottomColor: '#ffffff',
+    sunColor: '#ffffff',
+    sunIntensity: 3.0,
+    ambientColor: '#f8fafc',
+    ambientIntensity: 1.35,
+    sunElevation: 1.25,
+    fogColor: '#e0f2fe',
   },
   SUNSET: {
-    topColor: '#3b0764', // rich royal purple
-    horizonColor: '#ea580c', // glowing amber crimson
-    bottomColor: '#7c2d12',
-    sunColor: '#fb923c',
-    sunIntensity: 1.6,
-    ambientColor: '#c2410c',
-    ambientIntensity: 0.55,
-    sunElevation: 0.16,
-    fogColor: '#c2410c',
+    topColor: '#6366f1', // rich vibrant twilight indigo
+    horizonColor: '#fb923c', // glowing warm amber gold
+    bottomColor: '#fef08a',
+    sunColor: '#fdba74',
+    sunIntensity: 2.5,
+    ambientColor: '#fed7aa',
+    ambientIntensity: 1.2,
+    sunElevation: 0.24,
+    fogColor: '#fed7aa',
   },
   NIGHT: {
-    topColor: '#020617', // midnight black-blue
-    horizonColor: '#0f172a',
-    bottomColor: '#020617',
-    sunColor: '#bfdbfe', // cool moonlight
-    sunIntensity: 0.4,
-    ambientColor: '#1e293b',
-    ambientIntensity: 0.28,
-    sunElevation: 0.85,
-    fogColor: '#090d16',
+    topColor: '#1e293b', // soft cinematic moonlit indigo (NOT pitch black)
+    horizonColor: '#334155', // luminous twilight horizon
+    bottomColor: '#1e293b',
+    sunColor: '#e0f2fe', // luminous bright silver moonlight
+    sunIntensity: 1.8,
+    ambientColor: '#94a3b8', // bright ambient fill for high visibility
+    ambientIntensity: 0.95,
+    sunElevation: 0.95,
+    fogColor: '#1e293b',
   },
 };
 
@@ -77,7 +77,7 @@ export class SkySystem {
     this.group = new THREE.Group();
 
     // Directional Sun / Moon
-    this.sunLight = new THREE.DirectionalLight(0xfffef0, 2.2);
+    this.sunLight = new THREE.DirectionalLight(0xffffff, 3.0);
     this.sunLight.castShadow = true;
     this.sunLight.shadow.mapSize.width = 2048;
     this.sunLight.shadow.mapSize.height = 2048;
@@ -87,14 +87,14 @@ export class SkySystem {
     this.sunLight.shadow.camera.right = 60;
     this.sunLight.shadow.camera.top = 60;
     this.sunLight.shadow.camera.bottom = -60;
-    this.sunLight.shadow.bias = -0.0004;
+    this.sunLight.shadow.bias = -0.0003;
     this.group.add(this.sunLight);
 
-    // Ambient and Hemisphere Lighting
-    this.ambientLight = new THREE.AmbientLight(0xdbeafe, 0.8);
+    // Ambient and Hemisphere Lighting for luminous clarity & soft shadows
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 1.35);
     this.group.add(this.ambientLight);
 
-    this.hemiLight = new THREE.HemisphereLight(0xbae6fd, 0x1e293b, 0.55);
+    this.hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0xa1a1aa, 0.85);
     this.group.add(this.hemiLight);
 
     // Advanced Atmospheric Scattering & Sun Glare Shader

@@ -10,15 +10,15 @@ export class WeatherSystem {
   private targetWeather: WeatherType = 'CLEAR';
   private isDynamic: boolean = true;
   private weatherTimer = 0;
-  private fogDensity = 0.0025;
-  private targetFogDensity = 0.0025;
+  private fogDensity = 0.0008;
+  private targetFogDensity = 0.0008;
 
   constructor(scene: THREE.Scene) {
     this.group = new THREE.Group();
     scene.add(this.group);
 
-    // Initialize scene fog
-    scene.fog = new THREE.FogExp2(0xcbd5e1, this.fogDensity);
+    // Initialize bright, airy, long-distance scene fog
+    scene.fog = new THREE.FogExp2(0xe0f2fe, this.fogDensity);
 
     this.initRain();
   }
@@ -73,15 +73,15 @@ export class WeatherSystem {
       }
     }
 
-    // Fog Density target
+    // Fog Density target - light and clear for maximum visibility
     if (this.currentWeather === 'FOG') {
-      this.targetFogDensity = 0.012;
+      this.targetFogDensity = 0.0024;
     } else if (this.currentWeather === 'RAIN') {
-      this.targetFogDensity = 0.005;
+      this.targetFogDensity = 0.0015;
     } else if (this.currentWeather === 'CLOUDY') {
-      this.targetFogDensity = 0.0035;
+      this.targetFogDensity = 0.0011;
     } else {
-      this.targetFogDensity = 0.0022;
+      this.targetFogDensity = 0.00075;
     }
 
     this.fogDensity = THREE.MathUtils.lerp(this.fogDensity, this.targetFogDensity, dt * 0.5);
