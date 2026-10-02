@@ -5,8 +5,8 @@ import { BIOMES } from '../world/biomeConfigs';
 import { BiomeType } from '../../types/game';
 
 const CHUNK_WIDTH = 320; // 160m left, 160m right of road
-const WIDTH_SEGMENTS = 36;
-const LENGTH_SEGMENTS = 24;
+const WIDTH_SEGMENTS = 40;
+const LENGTH_SEGMENTS = 26;
 
 export class TerrainChunk {
   public id: number;
@@ -16,6 +16,7 @@ export class TerrainChunk {
   public group: THREE.Group;
   private terrainMesh: THREE.Mesh | null = null;
   private oceanMesh: THREE.Mesh | null = null;
+  private riverMesh: THREE.Mesh | null = null;
   private instancedTrees: THREE.InstancedMesh[] = [];
   private instancedRocks: THREE.InstancedMesh | null = null;
   private instancedFlowers: THREE.InstancedMesh | null = null;
@@ -43,7 +44,7 @@ export class TerrainChunk {
   }
 
   private buildTerrain(curve: RoadCurve, noise: TerrainNoise) {
-    const biomeConfig = BIOMES[this.biome];
+    const biomeConfig = BIOMES[this.biome] || BIOMES.COUNTRYSIDE;
     const vertCols = WIDTH_SEGMENTS + 1;
     const vertRows = LENGTH_SEGMENTS + 1;
     const totalVerts = vertCols * vertRows;
@@ -55,18 +56,25 @@ export class TerrainChunk {
     const baseColor = new THREE.Color(biomeConfig.terrainColor);
     const secColor = new THREE.Color(biomeConfig.terrainSecondaryColor);
     const rockColor = new THREE.Color(biomeConfig.rockColor);
-    const cliffColor = new THREE.Color('#94a3b8'); // clear, light granite cliff strata
-    const sandColor = new THREE.Color('#fde047'); // bright sunlit golden sand
+    const cliffColor = new THREE.Color('#6b7280'); // natural granite cliff strata
+    const sandColor = new THREE.Color('#d4be92'); // warm natural beach & bank sand
+    const riverbedColor = new THREE.Color('#475569'); // wet river pebbles & silt
+
+    const hasRiver = !!biomeConfig.hasRiver;
+    const hasOcean = !!biomeConfig.hasOcean;
+    const length = this.endDist - this.startDist;
 
     let vIdx = 0;
     let uvIdx = 0;
-
-    const length = this.endDist - this.startDist;
 
     for (let r = 0; r <= LENGTH_SEGMENTS; r++) {
       const fracL = r / LENGTH_SEGMENTS;
       const dist = this.startDist + fracL * length;
       const frame = curve.getRoadFrame(dist);
+
+      // Natural meandering river on the right side of the road
+      const riverCenterU = 34 + noise.sample2D(dist * 0.007, 73.1) * 8;
+      const riverHalfW = 9.5;
 
       for (let c = 0; c <= WIDTH_SEGMENTS; c++) {
         const fracW = c / WIDTH_SEGMENTS;
@@ -75,18 +83,28 @@ export class TerrainChunk {
         const worldX = frame.position.x + frame.binormal.x * u;
         const worldZ = frame.position.z + frame.binormal.z * u;
 
-        // Multi-octave natural elevation
+        // Multi-octave natural rolling hills & mountains
         const n1 = noise.fbm2D(worldX * biomeConfig.hillFrequency, worldZ * biomeConfig.hillFrequency, 4);
-        const detailNoise = noise.sample2D(worldX * 0.02, worldZ * 0.02) * 1.5;
+        const detailNoise = noise.sample2D(worldX * 0.02, worldZ * 0.02) * 1.4;
         let naturalY = frame.position.y + n1 * biomeConfig.mountainHeight + detailNoise;
 
+        // Carve river channel into terrain when biome has river
+        if (hasRiver) {
+          const distToRiver = Math.abs(u - riverCenterU);
+          if (distToRiver < riverHalfW + 7.0) {
+            const dropBlend = THREE.MathUtils.smoothstep(distToRiver, riverHalfW + 7.0, riverHalfW * 0.35);
+            const riverBedY = frame.position.y - 3.2;
+            naturalY = THREE.MathUtils.lerp(naturalY, riverBedY, dropBlend);
+          }
+        }
+
         // Coastal beach & ocean slope
-        if (this.biome === 'COASTAL' && u > 22) {
-          const oceanDrop = Math.min(1.0, (u - 22) / 40);
+        if (hasOcean && u > 22) {
+          const oceanDrop = Math.min(1.0, (u - 22) / 38);
           naturalY = THREE.MathUtils.lerp(naturalY, -1.8, oceanDrop);
         }
 
-        // Embankment blending near road
+        // Smooth embankment blending near road
         const absU = Math.abs(u);
         let finalY = naturalY;
         if (absU < 4.8) {
@@ -135,7 +153,7 @@ export class TerrainChunk {
     geo.setIndex(new THREE.BufferAttribute(indices, 1));
     geo.computeVertexNormals();
 
-    // Slope-based and elevation-based vertex coloring
+    // Natural slope-based and moisture-based vertex coloring
     const normAttr = geo.attributes.normal.array as Float32Array;
     let cIdx = 0;
 
@@ -149,20 +167,36 @@ export class TerrainChunk {
       const nMix = (noise.sample2D(wx * 0.04, wz * 0.04) + 1) * 0.5;
       vertexColor.lerp(secColor, nMix);
 
+      // Riverbed sand and shoreline reeds
+      if (hasRiver) {
+        const midDist = (this.startDist + this.endDist) * 0.5;
+        const frame = curve.getRoadFrame(midDist);
+        const u = (wx - frame.position.x) * frame.binormal.x + (wz - frame.position.z) * frame.binormal.z;
+        const riverCenterU = 34 + noise.sample2D(midDist * 0.007, 73.1) * 8;
+        const distToRiver = Math.abs(u - riverCenterU);
+
+        if (distToRiver < 8.5) {
+          vertexColor.lerp(riverbedColor, 0.88);
+        } else if (distToRiver < 13.0) {
+          const bankBlend = 1.0 - (distToRiver - 8.5) / 4.5;
+          vertexColor.lerp(new THREE.Color('#15803d'), bankBlend * 0.75);
+        }
+      }
+
       // Steep cliff detection: if slope is steep (ny < 0.72), blend exposed rock strata
       if (ny < 0.72) {
         const cliffMix = THREE.MathUtils.smoothstep(ny, 0.72, 0.45);
         vertexColor.lerp(cliffColor, cliffMix * 0.85);
       }
 
-      // High mountain snow/granite peaks
+      // High mountain peaks
       if (wy > 28) {
         const rockMix = THREE.MathUtils.clamp((wy - 28) / 20, 0, 1);
         vertexColor.lerp(rockColor, rockMix * 0.7);
       }
 
       // Coastal beach sand
-      if (this.biome === 'COASTAL' && wy < 0.5) {
+      if (hasOcean && wy < 0.5) {
         vertexColor.lerp(sandColor, 0.9);
       }
 
@@ -174,26 +208,53 @@ export class TerrainChunk {
 
     geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
+    // Realistic Smooth-Shaded Natural Terrain
     const mat = new THREE.MeshStandardMaterial({
       vertexColors: true,
-      roughness: 0.8,
-      metalness: 0.02,
-      flatShading: true,
+      roughness: 0.84,
+      metalness: 0.03,
+      flatShading: false,
     });
 
     this.terrainMesh = new THREE.Mesh(geo, mat);
     this.terrainMesh.receiveShadow = true;
     this.group.add(this.terrainMesh);
 
-    // Realistic Coastal Water with Wave Shader (Bright luminous azure ocean)
-    if (this.biome === 'COASTAL') {
-      const oceanGeo = new THREE.PlaneGeometry(180, length + 20, 16, 16);
-      const oceanMat = new THREE.MeshStandardMaterial({
-        color: 0x0ea5e9,
-        roughness: 0.1,
-        metalness: 0.25,
+    // 1. Serene Winding River (crystal clear sparkling stream)
+    if (hasRiver) {
+      const riverGeo = new THREE.PlaneGeometry(24, length + 8, 12, 12);
+      const riverMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(biomeConfig.riverColor || '#1d8a8a'),
+        roughness: 0.06,
+        metalness: 0.35,
         transparent: true,
         opacity: 0.85,
+        depthWrite: false,
+      });
+      const river = new THREE.Mesh(riverGeo, riverMat);
+      river.rotation.x = -Math.PI / 2;
+      const midDist = (this.startDist + this.endDist) * 0.5;
+      const midFrame = curve.getRoadFrame(midDist);
+      const midRiverU = 34 + noise.sample2D(midDist * 0.007, 73.1) * 8;
+      river.position.set(
+        midFrame.position.x + midFrame.binormal.x * midRiverU,
+        midFrame.position.y - 1.4,
+        midFrame.position.z + midFrame.binormal.z * midRiverU
+      );
+      this.group.add(river);
+      this.riverMesh = river;
+    }
+
+    // 2. Realistic Coastal Ocean
+    if (hasOcean) {
+      const oceanGeo = new THREE.PlaneGeometry(180, length + 20, 16, 16);
+      const oceanMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(biomeConfig.riverColor || '#168aad'),
+        roughness: 0.08,
+        metalness: 0.32,
+        transparent: true,
+        opacity: 0.86,
+        depthWrite: false,
       });
       const ocean = new THREE.Mesh(oceanGeo, oceanMat);
       ocean.rotation.x = -Math.PI / 2;
@@ -215,54 +276,70 @@ export class TerrainChunk {
     rockGeoMat: { geo: THREE.BufferGeometry; mat: THREE.Material },
     flowerGeoMat?: { geo: THREE.BufferGeometry; mat: THREE.Material }
   ) {
-    const biomeConfig = BIOMES[this.biome];
-    const treeType = biomeConfig.treeTypes[0] || 'pine';
-    const treeAsset = treeGeos[treeType] || treeGeos['pine'];
-
-    const numTrees = Math.floor(22 * biomeConfig.foliageDensity);
-    const numRocks = 7;
-    const numFlowers = 12;
-
+    const biomeConfig = BIOMES[this.biome] || BIOMES.COUNTRYSIDE;
+    const treeTypes = biomeConfig.treeTypes || ['oak'];
     const dummy = new THREE.Object3D();
     const length = this.endDist - this.startDist;
+    const hasRiver = !!biomeConfig.hasRiver;
+    const hasOcean = !!biomeConfig.hasOcean;
 
-    // 1. Instanced Trees
-    if (treeAsset && numTrees > 0) {
-      const treeMesh = new THREE.InstancedMesh(treeAsset.geo, treeAsset.mat, numTrees);
-      treeMesh.castShadow = true;
-      treeMesh.receiveShadow = true;
+    const baseTreeCount = Math.floor(28 * biomeConfig.foliageDensity);
+    const numRocks = 9;
+    const numFlowers = 24;
 
-      let validCount = 0;
-      for (let i = 0; i < numTrees; i++) {
-        const frac = (i + 0.5) / numTrees;
-        const dist = this.startDist + frac * length;
-        const frame = curve.getRoadFrame(dist);
+    // 1. Instanced Multi-Species Trees & Palms
+    if (treeTypes.length > 0 && baseTreeCount > 0) {
+      const treesPerType = Math.ceil(baseTreeCount / treeTypes.length);
 
-        const side = i % 2 === 0 ? 1 : -1;
-        const offsetDist = 8.8 + (noise.sample2D(dist * 0.1, i * 4.1) + 1) * 38;
-        const u = side * offsetDist;
+      for (let tIdx = 0; tIdx < treeTypes.length; tIdx++) {
+        const typeName = treeTypes[tIdx];
+        const treeAsset = treeGeos[typeName] || treeGeos['oak'] || treeGeos['pine'];
+        if (!treeAsset) continue;
 
-        if (this.biome === 'COASTAL' && u > 32) continue; // Don't plant inside water
+        const treeMesh = new THREE.InstancedMesh(treeAsset.geo, treeAsset.mat, treesPerType);
+        treeMesh.castShadow = true;
+        treeMesh.receiveShadow = true;
 
-        const wx = frame.position.x + frame.binormal.x * u;
-        const wz = frame.position.z + frame.binormal.z * u;
-        const wy = frame.position.y + noise.fbm2D(wx * biomeConfig.hillFrequency, wz * biomeConfig.hillFrequency, 3) * biomeConfig.mountainHeight;
+        let validCount = 0;
+        for (let i = 0; i < treesPerType; i++) {
+          const frac = (i + tIdx * 0.3) / treesPerType;
+          const dist = this.startDist + ((frac * length) % length);
+          const frame = curve.getRoadFrame(dist);
 
-        const scale = 0.85 + ((i * 19) % 7) * 0.08;
-        dummy.position.set(wx, wy, wz);
-        dummy.rotation.set(0, (i * 1.47) % (Math.PI * 2), 0);
-        dummy.scale.set(scale, scale, scale);
-        dummy.updateMatrix();
+          const side = (i + tIdx) % 2 === 0 ? 1 : -1;
+          const offsetDist = 8.5 + (noise.sample2D(dist * 0.08, (i + tIdx * 10) * 3.7) + 1) * 42;
+          const u = side * offsetDist;
 
-        treeMesh.setMatrixAt(validCount++, dummy.matrix);
+          const riverCenterU = 34 + noise.sample2D(dist * 0.007, 73.1) * 8;
+
+          // Don't plant inside river or ocean water
+          if (hasRiver && Math.abs(u - riverCenterU) < 11.0) continue;
+          if (hasOcean && u > 24) continue;
+
+          const wx = frame.position.x + frame.binormal.x * u;
+          const wz = frame.position.z + frame.binormal.z * u;
+          const wy =
+            frame.position.y +
+            noise.fbm2D(wx * biomeConfig.hillFrequency, wz * biomeConfig.hillFrequency, 3) *
+              biomeConfig.mountainHeight;
+
+          const scale = 0.85 + ((i * 17 + tIdx * 7) % 6) * 0.09;
+          dummy.position.set(wx, wy, wz);
+          dummy.rotation.set(0, (i * 1.5 + tIdx * 2.1) % (Math.PI * 2), 0);
+          dummy.scale.set(scale, scale, scale);
+          dummy.updateMatrix();
+
+          treeMesh.setMatrixAt(validCount++, dummy.matrix);
+        }
+
+        treeMesh.count = validCount;
+        treeMesh.instanceMatrix.needsUpdate = true;
+        this.group.add(treeMesh);
+        this.instancedTrees.push(treeMesh);
       }
-      treeMesh.count = validCount;
-      treeMesh.instanceMatrix.needsUpdate = true;
-      this.group.add(treeMesh);
-      this.instancedTrees.push(treeMesh);
     }
 
-    // 2. Instanced Rocks
+    // 2. Instanced Geological Rocks & Riverbed Boulders
     if (rockGeoMat && numRocks > 0) {
       const rockMesh = new THREE.InstancedMesh(rockGeoMat.geo, rockGeoMat.mat, numRocks);
       rockMesh.castShadow = true;
@@ -270,18 +347,20 @@ export class TerrainChunk {
 
       let validRocks = 0;
       for (let i = 0; i < numRocks; i++) {
-        const dist = this.startDist + (i / numRocks) * length + 4;
+        const dist = this.startDist + (i / numRocks) * length + 3;
         const frame = curve.getRoadFrame(dist);
-        const side = (i % 2 === 0 ? 1 : -1);
-        const u = side * (6.5 + (i * 5) % 18);
+        // Distribute some along the roadside verge, and some along the riverbank
+        const placeAtRiver = hasRiver && i % 2 === 0;
+        const riverCenterU = 34 + noise.sample2D(dist * 0.007, 73.1) * 8;
+        const u = placeAtRiver ? riverCenterU + ((i % 2 === 0 ? 1 : -1) * 11.5) : (i % 2 === 0 ? 1 : -1) * (6.5 + (i * 4) % 16);
 
         const wx = frame.position.x + frame.binormal.x * u;
         const wz = frame.position.z + frame.binormal.z * u;
-        const wy = frame.position.y - 0.2;
+        const wy = frame.position.y - (placeAtRiver ? 1.0 : 0.2);
 
-        const s = 0.75 + (i % 3) * 0.45;
+        const s = 0.75 + (i % 4) * 0.35;
         dummy.position.set(wx, wy, wz);
-        dummy.rotation.set((i * 0.8) % 3, (i * 1.6) % 3, 0);
+        dummy.rotation.set((i * 0.7) % 3, (i * 1.4) % 3, 0);
         dummy.scale.set(s, s * 0.85, s);
         dummy.updateMatrix();
 
@@ -293,24 +372,26 @@ export class TerrainChunk {
       this.instancedRocks = rockMesh;
     }
 
-    // 3. Instanced Roadside Wildflowers & Grass Clumps
+    // 3. Instanced Roadside Wildflowers, Grass & River Reeds
     if (flowerGeoMat && numFlowers > 0 && this.biome !== 'DESERT') {
       const flowerMesh = new THREE.InstancedMesh(flowerGeoMat.geo, flowerGeoMat.mat, numFlowers);
       let validFlowers = 0;
 
       for (let i = 0; i < numFlowers; i++) {
-        const dist = this.startDist + (i / numFlowers) * length + 2;
+        const dist = this.startDist + (i / numFlowers) * length + 1.5;
         const frame = curve.getRoadFrame(dist);
-        const side = i % 2 === 0 ? 1 : -1;
-        const u = side * (5.0 + (i % 4) * 0.8); // along the verge
+        const placeAtRiver = hasRiver && i % 3 === 0;
+        const riverCenterU = 34 + noise.sample2D(dist * 0.007, 73.1) * 8;
+        const u = placeAtRiver ? riverCenterU + ((i % 2 === 0 ? 1 : -1) * 10.8) : (i % 2 === 0 ? 1 : -1) * (5.2 + (i % 5) * 0.85);
 
         const wx = frame.position.x + frame.binormal.x * u;
         const wz = frame.position.z + frame.binormal.z * u;
-        const wy = frame.position.y + 0.1;
+        const wy = frame.position.y - (placeAtRiver ? 0.8 : 0.05);
 
         dummy.position.set(wx, wy, wz);
-        dummy.rotation.set(0, (i * 1.2) % (Math.PI * 2), 0);
-        dummy.scale.set(0.8, 0.8, 0.8);
+        dummy.rotation.set(0, (i * 1.8) % 6.28, 0);
+        const s = 0.85 + (i % 3) * 0.3;
+        dummy.scale.set(s, s, s);
         dummy.updateMatrix();
 
         flowerMesh.setMatrixAt(validFlowers++, dummy.matrix);
@@ -330,6 +411,10 @@ export class TerrainChunk {
     if (this.oceanMesh) {
       this.oceanMesh.geometry.dispose();
       this.group.remove(this.oceanMesh);
+    }
+    if (this.riverMesh) {
+      this.riverMesh.geometry.dispose();
+      this.group.remove(this.riverMesh);
     }
     for (const tree of this.instancedTrees) {
       this.group.remove(tree);

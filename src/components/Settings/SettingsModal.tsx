@@ -416,9 +416,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onApplySe
                         flexShrink: 0,
                       }}
                     />
-                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: isSelected ? 700 : 500 }}>
+                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: isSelected ? 700 : 500, flex: 1 }}>
                       {b.name}
                     </span>
+                    {b.hasRiver && (
+                      <span
+                        title="Scenic Winding River"
+                        style={{
+                          fontSize: '9px',
+                          color: '#38bdf8',
+                          background: 'rgba(56, 189, 248, 0.15)',
+                          padding: '1px 5px',
+                          borderRadius: '4px',
+                          fontWeight: 600,
+                          flexShrink: 0,
+                        }}
+                      >
+                        River
+                      </span>
+                    )}
                   </button>
                 );
               })}

@@ -102,6 +102,8 @@ export class RoadCurve {
     let targetY = 0;
     if (biome === 'MOUNTAINS') {
       targetY = elevationNoise * 45;
+    } else if (biome === 'JUNGLE') {
+      targetY = elevationNoise * 20;
     } else if (biome === 'COUNTRYSIDE') {
       targetY = elevationNoise * 14;
     } else if (biome === 'FOREST') {

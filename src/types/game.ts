@@ -20,6 +20,7 @@ export type WeatherType = 'CLEAR' | 'CLOUDY' | 'RAIN' | 'FOG';
 export type TimeOfDay = 'DAWN' | 'DAY' | 'SUNSET' | 'NIGHT';
 
 export type BiomeType =
+  | 'JUNGLE'
   | 'COUNTRYSIDE'
   | 'FOREST'
   | 'MOUNTAINS'
@@ -102,12 +103,14 @@ export interface BiomeConfig {
   rockColor: string;
   roadAsphaltColor: string;
   foliageDensity: number;
-  treeTypes: ('pine' | 'oak' | 'palm' | 'dryBush' | 'birch')[];
+  treeTypes: ('pine' | 'oak' | 'palm' | 'dryBush' | 'birch' | 'jungle' | 'willow')[];
   hillFrequency: number;
   mountainHeight: number;
   fogColor: string;
   fogDensity: number;
   hasOcean: boolean;
+  hasRiver?: boolean;
+  riverColor?: string;
 }
 
 export interface TrafficCarState {

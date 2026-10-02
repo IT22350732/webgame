@@ -1,99 +1,129 @@
 import { BiomeConfig, BiomeType } from '../../types/game';
 
 export const BIOMES: Record<BiomeType, BiomeConfig> = {
+  JUNGLE: {
+    type: 'JUNGLE',
+    name: 'Emerald Jungle & River',
+    terrainColor: '#2d5a37', // rich tropical rainforest undergrowth
+    terrainSecondaryColor: '#407c4b', // sunlit lush jungle canopy floor
+    rockColor: '#526055', // weathered river moss boulders
+    roadAsphaltColor: '#334155',
+    foliageDensity: 1.8,
+    treeTypes: ['jungle', 'palm', 'willow'],
+    hillFrequency: 0.0036,
+    mountainHeight: 24,
+    fogColor: '#d8f3dc', // soft tropical humid morning haze
+    fogDensity: 0.00082,
+    hasOcean: false,
+    hasRiver: true,
+    riverColor: '#1d8a8a', // tranquil crystal emerald jungle river
+  },
   COUNTRYSIDE: {
     type: 'COUNTRYSIDE',
-    name: 'Rolling Meadows',
-    terrainColor: '#65a30d', // bright lush meadow green
-    terrainSecondaryColor: '#84cc16', // sunlit lime-green grass
-    rockColor: '#a8a29e', // light sandstone
-    roadAsphaltColor: '#374151', // clear gray asphalt
-    foliageDensity: 1.0,
-    treeTypes: ['oak', 'birch'],
-    hillFrequency: 0.003,
-    mountainHeight: 18,
-    fogColor: '#e0f2fe',
-    fogDensity: 0.0008,
+    name: 'Meadowlands & River',
+    terrainColor: '#4f772d', // calming organic meadow green
+    terrainSecondaryColor: '#74a143', // warm sun-drenched pasture grass
+    rockColor: '#8d8b82', // natural river sandstone
+    roadAsphaltColor: '#374151',
+    foliageDensity: 1.2,
+    treeTypes: ['oak', 'willow', 'birch'],
+    hillFrequency: 0.0028,
+    mountainHeight: 16,
+    fogColor: '#e6f0fa', // crisp clear rural atmospheric haze
+    fogDensity: 0.00075,
     hasOcean: false,
+    hasRiver: true,
+    riverColor: '#2b8296', // peaceful sparkling blue-green river
   },
   FOREST: {
     type: 'FOREST',
-    name: 'Pine Woodland',
-    terrainColor: '#15803d', // vibrant lush evergreen moss
-    terrainSecondaryColor: '#22c55e', // bright sunlit canopy highlights
-    rockColor: '#94a3b8', // light granite
+    name: 'Pine Woods & Stream',
+    terrainColor: '#2b4c37', // serene deep evergreen needle floor
+    terrainSecondaryColor: '#3d694b', // fresh fern & moss highlights
+    rockColor: '#6c757d', // slate riverbed stone
     roadAsphaltColor: '#374151',
-    foliageDensity: 1.6,
-    treeTypes: ['pine', 'oak'],
-    hillFrequency: 0.004,
-    mountainHeight: 25,
-    fogColor: '#cffafe',
-    fogDensity: 0.0009,
+    foliageDensity: 1.7,
+    treeTypes: ['pine', 'birch', 'willow'],
+    hillFrequency: 0.0035,
+    mountainHeight: 26,
+    fogColor: '#d5e5e8', // soft misty pine woodland air
+    fogDensity: 0.00085,
     hasOcean: false,
+    hasRiver: true,
+    riverColor: '#287271', // clear mountain stream
   },
   MOUNTAINS: {
     type: 'MOUNTAINS',
-    name: 'Highland Ridge',
-    terrainColor: '#78716c', // bright sunlit alpine scree
-    terrainSecondaryColor: '#a8a29e', // light quartz/granite
-    rockColor: '#d6d3d1', // sunlit stone
+    name: 'Highland Alpine Valley',
+    terrainColor: '#595e63', // weathered alpine stone scree
+    terrainSecondaryColor: '#7a8187', // granite quartz ledges
+    rockColor: '#b8bec2', // sunlit mountain peaks
     roadAsphaltColor: '#374151',
-    foliageDensity: 0.6,
-    treeTypes: ['pine'],
-    hillFrequency: 0.006,
-    mountainHeight: 52,
-    fogColor: '#f1f5f9',
-    fogDensity: 0.00075,
+    foliageDensity: 0.75,
+    treeTypes: ['pine', 'birch'],
+    hillFrequency: 0.0055,
+    mountainHeight: 46,
+    fogColor: '#eef2f6', // pure crisp high-altitude air
+    fogDensity: 0.0007,
     hasOcean: false,
+    hasRiver: true,
+    riverColor: '#38bdf8', // glacial meltwater creek
   },
   COASTAL: {
     type: 'COASTAL',
     name: 'Pacific Shoreline',
-    terrainColor: '#eab308', // glowing golden sand
-    terrainSecondaryColor: '#fde047', // bright sunlit dunes
-    rockColor: '#d6d3d1',
+    terrainColor: '#cbb484', // natural warm beach dune sand
+    terrainSecondaryColor: '#dfce9d', // sun-kissed coastal bluffs
+    rockColor: '#9a9183', // coastal granite cliffs
     roadAsphaltColor: '#475569',
-    foliageDensity: 0.8,
-    treeTypes: ['palm'],
-    hillFrequency: 0.0035,
+    foliageDensity: 0.9,
+    treeTypes: ['palm', 'jungle'],
+    hillFrequency: 0.0032,
     mountainHeight: 22,
-    fogColor: '#e0f2fe',
-    fogDensity: 0.0007,
+    fogColor: '#dcf0f7', // ocean sea spray haze
+    fogDensity: 0.00072,
     hasOcean: true,
+    hasRiver: false,
+    riverColor: '#168aad',
   },
   DESERT: {
     type: 'DESERT',
-    name: 'Canyon Badlands',
-    terrainColor: '#ea580c', // glowing warm terracotta
-    terrainSecondaryColor: '#f59e0b', // golden sunlit canyon sand
-    rockColor: '#c2410c',
+    name: 'Sunset Canyon Oasis',
+    terrainColor: '#b06d4e', // calming warm natural terracotta
+    terrainSecondaryColor: '#c98d63', // golden evening canyon sand
+    rockColor: '#8f4f34', // natural red rock canyon
     roadAsphaltColor: '#475569',
-    foliageDensity: 0.35,
-    treeTypes: ['dryBush'],
-    hillFrequency: 0.0045,
-    mountainHeight: 38,
-    fogColor: '#ffedd5',
+    foliageDensity: 0.45,
+    treeTypes: ['dryBush', 'palm'],
+    hillFrequency: 0.0042,
+    mountainHeight: 34,
+    fogColor: '#faebd7', // warm dusk atmosphere
     fogDensity: 0.0007,
     hasOcean: false,
+    hasRiver: true,
+    riverColor: '#2a9d8f', // oasis spring water
   },
   CITY_OUTSKIRTS: {
     type: 'CITY_OUTSKIRTS',
-    name: 'Metro Perimeter',
-    terrainColor: '#4ade80', // clean parkway lawn green
-    terrainSecondaryColor: '#86efac',
-    rockColor: '#cbd5e1',
+    name: 'Parkway & Canal',
+    terrainColor: '#3d7042', // serene manicured lawn
+    terrainSecondaryColor: '#5d9962', // sunlit parkway turf
+    rockColor: '#9ca3af',
     roadAsphaltColor: '#374151',
-    foliageDensity: 0.5,
-    treeTypes: ['oak'],
+    foliageDensity: 0.85,
+    treeTypes: ['oak', 'willow', 'birch'],
     hillFrequency: 0.002,
     mountainHeight: 12,
-    fogColor: '#f8fafc',
-    fogDensity: 0.0008,
+    fogColor: '#f1f5f9',
+    fogDensity: 0.00076,
     hasOcean: false,
+    hasRiver: true,
+    riverColor: '#338ba8',
   },
 };
 
 export const BIOME_SEQUENCE: BiomeType[] = [
+  'JUNGLE',
   'COUNTRYSIDE',
   'FOREST',
   'MOUNTAINS',
@@ -103,7 +133,6 @@ export const BIOME_SEQUENCE: BiomeType[] = [
 ];
 
 export function getBiomeForDistance(distanceMeters: number): BiomeType {
-  // Each biome spans ~2500 meters (2.5 km) for nice progression
   const biomeSpan = 2500;
   const index = Math.floor(Math.abs(distanceMeters) / biomeSpan) % BIOME_SEQUENCE.length;
   return BIOME_SEQUENCE[index];

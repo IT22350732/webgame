@@ -15,48 +15,48 @@ interface SkyPalette {
 
 const PALETTES: Record<TimeOfDay, SkyPalette> = {
   DAWN: {
-    topColor: '#38bdf8', // crisp morning azure
-    horizonColor: '#fed7aa', // bright warm sunrise peach
-    bottomColor: '#fef3c7',
-    sunColor: '#fffbeb',
-    sunIntensity: 2.4,
-    ambientColor: '#fed7aa',
-    ambientIntensity: 1.15,
-    sunElevation: 0.22,
-    fogColor: '#fef3c7',
+    topColor: '#4a8cb8', // soft morning atmospheric blue
+    horizonColor: '#fcd5b8', // gentle sunrise apricot mist
+    bottomColor: '#e8eff5',
+    sunColor: '#fff2d6', // soft warm dawn sunlight
+    sunIntensity: 2.5,
+    ambientColor: '#f5e6d3',
+    ambientIntensity: 1.25,
+    sunElevation: 0.28,
+    fogColor: '#faeade',
   },
   DAY: {
-    topColor: '#0284c7', // vibrant clear sky blue
-    horizonColor: '#bae6fd', // luminous bright horizon
-    bottomColor: '#ffffff',
-    sunColor: '#ffffff',
-    sunIntensity: 3.0,
-    ambientColor: '#f8fafc',
-    ambientIntensity: 1.35,
-    sunElevation: 1.25,
-    fogColor: '#e0f2fe',
+    topColor: '#3a7ca5', // authentic atmospheric Rayleigh scattering sky blue
+    horizonColor: '#cde1ed', // soft natural horizon haze
+    bottomColor: '#e2ecf2',
+    sunColor: '#fff9ee', // warm natural daylight (~5500K)
+    sunIntensity: 2.85,
+    ambientColor: '#eef5fb',
+    ambientIntensity: 1.4,
+    sunElevation: 1.15,
+    fogColor: '#d9e9f2',
   },
   SUNSET: {
-    topColor: '#6366f1', // rich vibrant twilight indigo
-    horizonColor: '#fb923c', // glowing warm amber gold
-    bottomColor: '#fef08a',
-    sunColor: '#fdba74',
-    sunIntensity: 2.5,
+    topColor: '#444a78', // dusty twilight indigo
+    horizonColor: '#f59e0b', // warm glowing golden hour horizon
+    bottomColor: '#fef3c7',
+    sunColor: '#fbbf24', // soft golden sunset orb
+    sunIntensity: 2.4,
     ambientColor: '#fed7aa',
     ambientIntensity: 1.2,
-    sunElevation: 0.24,
-    fogColor: '#fed7aa',
+    sunElevation: 0.22,
+    fogColor: '#fde2c7',
   },
   NIGHT: {
-    topColor: '#1e293b', // soft cinematic moonlit indigo (NOT pitch black)
-    horizonColor: '#334155', // luminous twilight horizon
-    bottomColor: '#1e293b',
-    sunColor: '#e0f2fe', // luminous bright silver moonlight
-    sunIntensity: 1.8,
-    ambientColor: '#94a3b8', // bright ambient fill for high visibility
-    ambientIntensity: 0.95,
+    topColor: '#0f172a', // midnight navy with gentle starlight
+    horizonColor: '#1e293b',
+    bottomColor: '#0f172a',
+    sunColor: '#cbd5e1', // soft silver moonlight
+    sunIntensity: 1.6,
+    ambientColor: '#94a3b8',
+    ambientIntensity: 1.05,
     sunElevation: 0.95,
-    fogColor: '#1e293b',
+    fogColor: '#182334',
   },
 };
 
